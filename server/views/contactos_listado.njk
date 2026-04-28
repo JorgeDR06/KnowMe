@@ -1,0 +1,22 @@
+{% extends "base.njk" %}
+
+{% block titulo %}Contactos | Listado{% endblock %}
+
+{% block contenido %}
+
+    <h1>Listado de contactos</h1>
+
+    <ul>
+        {% for contacto in contactos %}
+            <li>{{ contacto.nombre }} 
+                <a class="bg-lime-500 rounded-lg" href="/contactos/{{ contacto.id }}">Ficha</a>
+                <form style="display:inline" action="/contactos/{{ contacto.id }}" method="post">
+                    <input type="hidden" name="_method" value="delete" />
+                    <button type="submit" class="bg-red-400 rounded-lg">Borrar</button>
+                </form>
+                <a class="bg-blue-400 rounded-lg" href="/contactos/editar/{{ contacto.id }}">Editar</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+{% endblock %}
