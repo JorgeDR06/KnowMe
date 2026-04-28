@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block titulo %} {% endblock %}</title>
+
+  {% if isDev() %}
+    <script type="module" src="http://localhost:5173/@vite/client"></script>
+    <script type="module" src="http://localhost:5173/js/main.js"></script>
+  {% else %}
+    {% for href in viteCssFiles() %}
+      <link rel="stylesheet" href="{{ href }}">
+    {% endfor %}
+    <script type="module" src="{{ viteAsset() }}"></script>
+  {% endif %}
+</head>
+<body class="bg-slate-100 text-slate-900">
+    {% include "menu.njk" %}
+    <div class="container">
+        {% block contenido %}
+
+        {% endblock %}
+    </div>
+</body>
+</html>
