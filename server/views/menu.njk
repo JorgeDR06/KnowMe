@@ -1,6 +1,33 @@
+<nav class="navbar">
+    <div class="navbar__inner">
+        <a href="/" class="navbar__logo">
+            <span class="navbar__logo-bracket">&lt;</span>
+            KnowMe
+            <span class="navbar__logo-bracket">/&gt;</span>
+        </a>
 
-<div class="bg-slate-200">
-    <a href="/contactos">Listado de contactos</a>
-    &nbsp;&nbsp;
-    <a href="/contactos/nuevo">Nuevo contacto</a>
-</div>
+        <button class="navbar__toggle" id="navToggle" aria-label="Abrir menú">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <ul class="navbar__links" id="navLinks">
+            <li>
+                <a href="/" class="navbar__link {% if active == 'home' %}navbar__link--active{% endif %}">
+                    Home
+                </a>
+            </li>
+            <li>
+                <a href="/porfolios" class="navbar__link {% if active == 'porfolios' %}navbar__link--active{% endif %}">
+                    Porfolios
+                </a>
+            </li>
+            <li>
+                <a href="/perfil" class="navbar__link navbar__link--cta {% if active == 'perfil' %}navbar__link--active{% endif %}">
+                    Perfil
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>

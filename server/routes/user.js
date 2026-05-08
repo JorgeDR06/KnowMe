@@ -50,11 +50,22 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// Borrar usuario
-router.delete('/:id', async (req, res) => {
-    try {
-        await User.findByIdAndDelete(req.params.id);
-
+// Ruta para editar el usuario desde el perfil
+router.put('/:id', (req, res) => {
+    User.findByIdAndUpdate(req.params.id, {
+        $set: {
+            name: req.body.name,
+            email: req.body.email,
+            password: req.body.password,
+            bio: req.body.bio,
+            skills: req.body.skills,
+            languajes: req.body.languajes,
+            role: req.body.role,
+            avatar: req.body.avatar,
+            socialLinks: req.body.socialLinks,
+            invitedBy: req.body.invitedBy
+        }
+    }, {new: true}).then(resultado => {
         res.redirect(req.baseUrl);
     } catch (error) {
         res.status(500).render('error', { error: "Error al borrar" });

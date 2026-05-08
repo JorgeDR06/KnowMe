@@ -6,9 +6,10 @@ import dotenv from 'dotenv'
 import methodOverride from 'method-override'
 
 import connectMongo from './config/mongoose.js'
-import indexRouter from './routes/user.js'
+import Usuarios from './routes/user.js'
 import { viteAsset, viteCssFiles, isDev } from './utils/vite-assets.js'
 import Porfolios from './routes/porfolios.js';
+import Porfolio from './models/porfolio.js'
 
 
 dotenv.config()
@@ -49,8 +50,18 @@ app.locals.isDev = isDev
 app.locals.viteAsset = viteAsset
 app.locals.viteCssFiles = viteCssFiles
 
-app.use('/contactos', indexRouter)
-app.use('/porfolios', Porfolios)
+app.use('/api/porfolios', Porfolios)
+app.use('/api/usuarios', Usuarios)
+
+// Vistas
+app.get('/', (req, res) => {
+    res.render('home', { active: 'home' })
+})
+
+app.get('/porfolios', async (req, res) => {
+    const result = await Porfolio.find().populate('owner', 'username avatar')
+    res.render('porfolios', { active: 'porfolios', porfolios: result })
+})
 
 const port = process.env.PORT || 3000
 app.listen(port, () => {
