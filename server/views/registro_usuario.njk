@@ -1,0 +1,27 @@
+{% extends "base.njk" %}
+
+{% block titulo %}Contactos | Nuevo{% endblock %}
+
+{% block contenido %}
+
+    <h1>Inserción de nuevos Usuarios</h1>
+
+    <form action="/contactos" method="post">
+        <div>
+            <label for="name">Nombre:</label>
+            <input type="text" name="name" 
+                placeholder="Nombre de usaurio ...">
+        </div>
+        <div>
+            <label for="email">Correo electrónico:</label>
+            <input type="email" name="email"
+                placeholder="ejemplo@gmail.com">
+        </div>
+        <div>
+            <label for="password">Contraseña: </label>
+            <input type="password" name="password">
+        </div>
+        <button type="submit">Crear</button>
+    </form>
+
+{% endblock %}
