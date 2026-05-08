@@ -1,80 +1,53 @@
 import { Router } from 'express';
+import crypto from 'crypto';
 import User from '../models/User.js';
+import Invitation from '../models/Invitation.js';
 
 let router = Router();
 
 // Listado general
-router.get('/', (req, res) => {
-    User.find().then(resultado => {
-        res.render('usuarios_listado', {user: resultado});
-    }).catch(error => {
-        // Aquí podríamos renderizar una página de error
-    });
+router.get('/', async (req, res) => {
+    try {
+        const usuarios = await User.find();
+        res.render('usuarios_listado', { user: usuarios });
+    } catch (error) {
+        res.status(500).render('error', { error: "Error al cargar la lista" });
+    }
 });
 
-// Formulario de alta de contacto
-router.get('/registro', (req, res) => {
+// Formulario de creación
+router.get('/nuevo', (req, res) => {
     res.render('registro_usuario');
 });
 
-// Formulario de edición de usuario
-router.get('/perfil/:id', (req, res) => {
-    User.findById(req.params['id']).then(resultado => {
-        if (resultado) {
-            res.render('perfil_usuario', {contacto: resultado});
-        } else {
-            res.render('error', {error: "Usuario no encontrado"});
-        }
-    }).catch(error => {
-        res.render('error', {error: "Usuario no encontrado"});
-    });
+// Ver perfil del usuario y sus invitaciones
+router.get('/:id', async (req, res) => {
+    try {
+        // Ejecutamos ambas consultas al mismo tiempo
+        const [usuario, invitaciones] = await Promise.all([
+            User.findById(req.params.id),
+            Invitation.find({ generatedBy: req.params.id }).populate('usedBy', 'name')
+        ]);
+
+        if (!usuario) return res.status(404).render('error', { error: "No existe" });
+
+        res.render('perfil_usuario', { 
+            user: usuario, 
+            invitaciones: invitaciones 
+        });
+    } catch (error) {
+        res.status(500).render('error', { error: "Error al cargar el perfil" });
+    }
 });
 
-// Perfil de usuario
-router.get('/:id', (req, res) => {
-    User.findById(req.params['id']).then(resultado => {
-        res.render('perfil_usuario', {contacto: resultado});
-    }).catch(error => {
-        // Aquí podríamos renderizar una página de error
-    });
-});
-
-// Ruta para insertar contactos
-router.post('/', (req, res) => {
-
-    let nuevoUsuario = new User({
-        name: req.body.name,
-        email: req.body.email,
-        password: req.body.password,
-    });
-
-    nuevoUsuario.save().then(resultado => {
+// Actualizar usuario
+router.put('/:id', async (req, res) => {
+    try {
+        await User.findByIdAndUpdate(req.params.id, req.body);
         res.redirect(req.baseUrl);
-    }).catch(error => {
-        let errores = Object.keys(error.errors);
-        let mensaje = "";
-        if(errores.length > 0)
-        {
-            errores.forEach(clave => {
-                mensaje += '<p>' + error.errors[clave].message + '</p>';
-            })
-        }
-        else
-        {
-            mensaje = 'Error añadiendo el usuario';
-        }
-        console.log();
-        res.render('error', {error: mensaje});
-    });
-});
-
-// Ruta para borrar contactos
-router.delete('/:id', (req, res) => {
-    User.findByIdAndDelete(req.params.id).then(resultado => {
-        res.redirect(req.baseUrl);
-    }).catch(error => {
-        res.render('error', {error: "Error borrando el usuario"});
-    });
+    } catch (error) {
+        res.status(500).render('error', { error: "Error al actualizar" });
+    }
 });
 
 // Ruta para editar el usuario desde el perfil
@@ -94,9 +67,9 @@ router.put('/:id', (req, res) => {
         }
     }, {new: true}).then(resultado => {
         res.redirect(req.baseUrl);
-    }).catch(error => {
-        res.render('error', {error: "Error modificando contacto"});
-    });
+    } catch (error) {
+        res.status(500).render('error', { error: "Error al borrar" });
+    }
 });
 
 export default router;
