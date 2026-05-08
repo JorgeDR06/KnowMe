@@ -67,9 +67,9 @@ router.put('/:id', (req, res) => {
         }
     }, {new: true}).then(resultado => {
         res.redirect(req.baseUrl);
-    } catch (error) {
-        res.status(500).render('error', { error: "Error al borrar" });
-    }
+    }).catch(error => {
+        res.render('error', {error: "Error modificando contacto"});
+    });
 });
 
 export default router;

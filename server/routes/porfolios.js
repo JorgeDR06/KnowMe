@@ -10,7 +10,9 @@ const VALID_MEDIA_TYPES = ['image', 'video'];
 // GET: Obtener todos los porfolios
 router.get('/', async (req, res) => {
     try {
-        const result = await Porfolio.find().populate('owner', 'username avatar');
+        const result = await Porfolio.find().populate('owner', 'username avatar')
+            .populate('technologies')
+            .populate('languages');
         if (!result || result.length === 0) {
             return res.status(404).send({ error: "No se encontraron porfolios" });
         }
@@ -21,26 +23,32 @@ router.get('/', async (req, res) => {
     }
 });
 
-// GET: Buscar porfolios por título o tecnología
+// GET: Buscar porfolios por título, tecnología o lenguaje
 router.get('/find', async (req, res) => {
     try {
-        const { title, technology, language } = req.query;
+        const { title, technology, language, featured } = req.query;
 
-        if (!title && !technology && !language) {
-            return res.status(400).send({ error: "Se requiere al menos un parámetro de búsqueda: title, technology o language" });
+        if (!title && !technology && !language && !featured) {
+            return res.status(400).send({ error: "Se requiere al menos un parámetro de búsqueda" });
         }
 
         const query = {};
         if (title)      query.title        = { $regex: title, $options: 'i' };
-        if (technology) query.technologies = { $regex: technology, $options: 'i' };
-        if (language)   query.languages    = { $regex: language, $options: 'i' };
+        if (technology) query.technologies = { $in: technology.split(',') };  // acepta uno o varios IDs separados por coma
+        if (language)   query.languages    = { $in: language.split(',') };
+        if (featured === 'true') query.featured = true;
 
-        const result = await Porfolio.find(query).populate('owner', 'username avatar');
+        const result = await Porfolio.find(query)
+            .populate('owner', 'username avatar')
+            .populate('technologies')
+            .populate('languages');
+
         if (!result || result.length === 0) {
             return res.status(404).send({ error: "No se encontraron porfolios" });
         }
 
         res.status(200).send({ result });
+
     } catch (error) {
         console.log(error);
         res.status(500).send({ error: "Error al buscar porfolios" });
@@ -50,7 +58,9 @@ router.get('/find', async (req, res) => {
 // GET: Obtener porfolios de un usuario concreto
 router.get('/user/:userId', async (req, res) => {
     try {
-        const result = await Porfolio.find({ owner: req.params.userId }).populate('owner', 'username avatar');
+        const result = await Porfolio.find({ owner: req.params.userId }).populate('owner', 'username avatar')
+            .populate('technologies')
+            .populate('languages');
         if (!result || result.length === 0) {
             return res.status(404).send({ error: "Este usuario no tiene porfolios" });
         }
@@ -64,7 +74,9 @@ router.get('/user/:userId', async (req, res) => {
 // GET: Obtener porfoliolio por ID
 router.get('/:id', async (req, res) => {
     try {
-        const result = await Porfolio.findById(req.params.id).populate('owner', 'username avatar');
+        const result = await Porfolio.findById(req.params.id).populate('owner', 'username avatar')
+            .populate('technologies')
+            .populate('languages');
         if (!result) {
             return res.status(404).send({ error: "Porfolio no encontrado" });
         }
