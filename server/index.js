@@ -24,6 +24,9 @@ app.use(express.json())
 
 app.use('/build', express.static(path.resolve(process.cwd(), 'public/build')))
 app.use(express.static(path.resolve(process.cwd(), 'public')))
+app.use('/user', userRoutes);
+app.use('/')
+
 
 nunjucks.configure(path.join(__dirname, 'views'), {
   autoescape: true,
