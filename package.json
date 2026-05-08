@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "Jordi Roca",
   "main": "server/index.js",
+  "type": "module",
   "scripts": {
-    "dev": "nodemon index.js",
+    "dev": "nodemon server/index.js",
     "dev:assets": "vite",
     "build": "vite build",
     "start": "cross-env NODE_ENV=production node index.js"

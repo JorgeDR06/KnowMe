@@ -79,11 +79,11 @@ router.delete('/:id', (req, res) => {
 
 // Ruta para editar el usuario desde el perfil
 router.put('/:id', (req, res) => {
-    Contacto.findByIdAndUpdate(req.params.id, {
+    User.findByIdAndUpdate(req.params.id, {
         $set: {
-            name: req.body.nombre,
-            email: req.body.telefono,
-            password: req.body.edad,
+            name: req.body.name,
+            email: req.body.email,
+            password: req.body.password,
             bio: req.body.bio,
             skills: req.body.skills,
             languajes: req.body.languajes,
