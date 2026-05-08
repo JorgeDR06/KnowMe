@@ -17,10 +17,14 @@ const porfolioSchema = new mongoose.Schema({
             enum: ['image', 'video'] 
         }
     }],
-    technologies: 
-        [String],
-    languages: 
-        [String],
+    technologies: [{ 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Technology' 
+    }],
+    languages: [{ 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Language' 
+    }],
     githubRepo: { 
         type: String 
     },

@@ -10,6 +10,8 @@ import Usuarios from './routes/user.js'
 import { viteAsset, viteCssFiles, isDev } from './utils/vite-assets.js'
 import Porfolios from './routes/porfolios.js';
 import Porfolio from './models/porfolio.js'
+import Technologies from './routes/technologies.js'
+import Languages from './routes/languages.js'
 
 
 dotenv.config()

@@ -17,10 +17,14 @@ const userSchema = new mongoose.Schema({
     bio: { 
         type: String 
     },
-    skills: 
-        [String],
-    languages: 
-        [String],
+    skills: [{ 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Technology' 
+    }],
+    languages: [{ 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Language' 
+    }],
     role: { 
         type: String, 
         enum: ['admin', 'user'], 
