@@ -1,5 +1,5 @@
-<nav class="sticky top-0 z-50 bg-[#0a0a0f] border-b border-white/[0.06] px-6 font-mono">
-  <div class="max-w-[1400px] mx-auto h-14 flex items-center justify-between">
+<nav class="sticky top-0 z-50 bg-[#0a0a0f] border-b border-white/[0.06] font-mono">
+  <div class="sticky max-w mx-auto px-6 h-14 flex items-center justify-between">
 
     <a href="/" class="flex items-center text-[15px] font-medium text-slate-200 hover:text-slate-50 tracking-tight transition-colors">
       <span class="text-emerald-500 text-base">&lt;</span>
@@ -8,19 +8,14 @@
     </a>
 
     <button id="navToggle" aria-label="Abrir menú"
-      class="hidden max-sm:flex flex-col gap-[5px] p-2 group">
-      <span class="block w-5 h-px bg-slate-500 rounded-sm transition-all duration-200 group-[.is-open]:translate-y-[6.5px] group-[.is-open]:rotate-45"></span>
-      <span class="block w-5 h-px bg-slate-500 rounded-sm transition-all duration-200 group-[.is-open]:opacity-0"></span>
-      <span class="block w-5 h-px bg-slate-500 rounded-sm transition-all duration-200 group-[.is-open]:-translate-y-[6.5px] group-[.is-open]:-rotate-45"></span>
+      class="hidden max-sm:flex flex-col gap-[5px] p-2">
+      <span class="block w-5 h-px bg-slate-500 rounded-sm transition-all duration-200"></span>
+      <span class="block w-5 h-px bg-slate-500 rounded-sm transition-all duration-200"></span>
+      <span class="block w-5 h-px bg-slate-500 rounded-sm transition-all duration-200"></span>
     </button>
 
     <ul id="navLinks"
-      class="flex items-center gap-1
-             max-sm:hidden max-sm:flex-col max-sm:items-stretch max-sm:gap-0.5
-             max-sm:absolute max-sm:top-14 max-sm:left-0 max-sm:right-0
-             max-sm:bg-[#0a0a0f] max-sm:border-b max-sm:border-white/[0.06]
-             max-sm:px-4 max-sm:py-2
-             max-sm:[&.is-open]:flex">
+      class="flex items-center gap-1">
 
       <li>
         <a href="/"
@@ -60,25 +55,3 @@
 
     </ul>
   </div>
-</nav>
-
-<script>
-  (function () {
-    var toggle = document.getElementById('navToggle');
-    var links  = document.getElementById('navLinks');
-
-    toggle.addEventListener('click', function () {
-      var isOpen = links.classList.toggle('is-open');
-      toggle.classList.toggle('is-open', isOpen);
-      toggle.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
-    });
-
-    links.querySelectorAll('a').forEach(function (link) {
-      link.addEventListener('click', function () {
-        links.classList.remove('is-open');
-        toggle.classList.remove('is-open');
-        toggle.setAttribute('aria-label', 'Abrir menú');
-      });
-    });
-  })();
-</script>

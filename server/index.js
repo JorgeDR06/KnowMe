@@ -97,6 +97,20 @@ app.get('/', (req, res) => {
     res.render('home', { active: 'home' })
 })
 
+// Formulario de login
+app.get('/login', (req, res) => {
+    res.render('login');
+});
+
+// Formulario de registro
+app.get('/register', (req, res) => {
+    res.render('registro_usuario');
+});
+
+app.get('/perfil', (req, res) => {
+  res.render('perfil_usuario')
+});
+
 app.get('/porfolios', async (req, res) => {
     res.render('porfolios', { active: 'porfolios' })
 })
