@@ -1,33 +1,84 @@
-<nav class="navbar">
-    <div class="navbar__inner">
-        <a href="/" class="navbar__logo">
-            <span class="navbar__logo-bracket">&lt;</span>
-            KnowMe
-            <span class="navbar__logo-bracket">/&gt;</span>
+<nav class="sticky top-0 z-50 bg-[#0a0a0f] border-b border-white/[0.06] px-6 font-mono">
+  <div class="max-w-[1400px] mx-auto h-14 flex items-center justify-between">
+
+    <a href="/" class="flex items-center text-[15px] font-medium text-slate-200 hover:text-slate-50 tracking-tight transition-colors">
+      <span class="text-emerald-500 text-base">&lt;</span>
+      KnowMe
+      <span class="text-emerald-500 text-base">/&gt;</span>
+    </a>
+
+    <button id="navToggle" aria-label="Abrir menú"
+      class="hidden max-sm:flex flex-col gap-[5px] p-2 group">
+      <span class="block w-5 h-px bg-slate-500 rounded-sm transition-all duration-200 group-[.is-open]:translate-y-[6.5px] group-[.is-open]:rotate-45"></span>
+      <span class="block w-5 h-px bg-slate-500 rounded-sm transition-all duration-200 group-[.is-open]:opacity-0"></span>
+      <span class="block w-5 h-px bg-slate-500 rounded-sm transition-all duration-200 group-[.is-open]:-translate-y-[6.5px] group-[.is-open]:-rotate-45"></span>
+    </button>
+
+    <ul id="navLinks"
+      class="flex items-center gap-1
+             max-sm:hidden max-sm:flex-col max-sm:items-stretch max-sm:gap-0.5
+             max-sm:absolute max-sm:top-14 max-sm:left-0 max-sm:right-0
+             max-sm:bg-[#0a0a0f] max-sm:border-b max-sm:border-white/[0.06]
+             max-sm:px-4 max-sm:py-2
+             max-sm:[&.is-open]:flex">
+
+      <li>
+        <a href="/"
+          class="inline-block text-[11px] uppercase tracking-widest px-3 py-1.5 rounded-md border transition-all duration-150
+                 {% if active == 'home' %}
+                   text-emerald-400 border-emerald-500/25 bg-emerald-500/[0.06]
+                 {% else %}
+                   text-slate-500 border-transparent hover:text-slate-300 hover:border-white/[0.08] hover:bg-white/[0.04]
+                 {% endif %}">
+          Home
         </a>
+      </li>
 
-        <button class="navbar__toggle" id="navToggle" aria-label="Abrir menú">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
+      <li>
+        <a href="/porfolios"
+          class="inline-block text-[11px] uppercase tracking-widest px-3 py-1.5 rounded-md border transition-all duration-150
+                 {% if active == 'porfolios' %}
+                   text-emerald-400 border-emerald-500/25 bg-emerald-500/[0.06]
+                 {% else %}
+                   text-slate-500 border-transparent hover:text-slate-300 hover:border-white/[0.08] hover:bg-white/[0.04]
+                 {% endif %}">
+          Porfolios
+        </a>
+      </li>
 
-        <ul class="navbar__links" id="navLinks">
-            <li>
-                <a href="/" class="navbar__link {% if active == 'home' %}navbar__link--active{% endif %}">
-                    Home
-                </a>
-            </li>
-            <li>
-                <a href="/porfolios" class="navbar__link {% if active == 'porfolios' %}navbar__link--active{% endif %}">
-                    Porfolios
-                </a>
-            </li>
-            <li>
-                <a href="/perfil" class="navbar__link navbar__link--cta {% if active == 'perfil' %}navbar__link--active{% endif %}">
-                    Perfil
-                </a>
-            </li>
-        </ul>
-    </div>
+      <li>
+        <a href="/perfil"
+          class="inline-block text-[11px] uppercase tracking-widest px-3 py-1.5 rounded-md border transition-all duration-150
+                 {% if active == 'perfil' %}
+                   text-[#0a0a0f] bg-emerald-500 border-emerald-500 hover:bg-emerald-400 hover:border-emerald-400
+                 {% else %}
+                   text-emerald-400 border-emerald-500/30 bg-emerald-500/[0.08] hover:text-emerald-300 hover:border-emerald-400/45 hover:bg-emerald-500/[0.14]
+                 {% endif %}">
+          Perfil
+        </a>
+      </li>
+
+    </ul>
+  </div>
 </nav>
+
+<script>
+  (function () {
+    var toggle = document.getElementById('navToggle');
+    var links  = document.getElementById('navLinks');
+
+    toggle.addEventListener('click', function () {
+      var isOpen = links.classList.toggle('is-open');
+      toggle.classList.toggle('is-open', isOpen);
+      toggle.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
+    });
+
+    links.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', function () {
+        links.classList.remove('is-open');
+        toggle.classList.remove('is-open');
+        toggle.setAttribute('aria-label', 'Abrir menú');
+      });
+    });
+  })();
+</script>
