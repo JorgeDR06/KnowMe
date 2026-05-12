@@ -13,6 +13,9 @@ import Porfolio from './models/porfolio.js'
 import Technologies from './routes/technologies.js'
 import Languages from './routes/languages.js'
 
+import helmet from 'helmet'
+import mongoSanitize from 'express-mongo-sanitize'
+import rateLimit from 'express-rate-limit'
 
 dotenv.config()
 
@@ -22,13 +25,19 @@ const __dirname = path.dirname(__filename)
 
 connectMongo()
 
+app.use(helmet())
+app.use(mongoSanitize())
+app.use(rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutos
+    max: 100,                  // máx 100 peticiones por IP
+    message: { error: 'Demasiadas peticiones, intenta más tarde' }
+}))
+
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 
 app.use('/build', express.static(path.resolve(process.cwd(), 'public/build')))
 app.use(express.static(path.resolve(process.cwd(), 'public')))
-app.use('/user', userRoutes);
-app.use('/')
 
 
 nunjucks.configure(path.join(__dirname, 'views'), {
@@ -54,6 +63,8 @@ app.locals.viteCssFiles = viteCssFiles
 
 app.use('/api/porfolios', Porfolios)
 app.use('/api/usuarios', Usuarios)
+app.use('/api/technologies', Technologies)
+app.use('/api/languages', Languages)
 
 // Vistas
 app.get('/', (req, res) => {

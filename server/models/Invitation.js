@@ -1,4 +1,5 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose'
+
 
 const invitationSchema = new mongoose.Schema({
     key: { 
@@ -21,4 +22,4 @@ const invitationSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Invitation', invitationSchema);
+export default mongoose.model('Invitatiton', invitationSchema)
