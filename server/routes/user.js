@@ -15,11 +15,6 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Formulario de creación
-router.get('/nuevo', (req, res) => {
-    res.render('registro_usuario');
-});
-
 // Ver perfil del usuario y sus invitaciones
 router.get('/:id', async (req, res) => {
     try {
