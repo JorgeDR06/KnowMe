@@ -14,7 +14,6 @@ import Technologies from './routes/technologies.js'
 import Languages from './routes/languages.js'
 
 import helmet from 'helmet'
-import mongoSanitize from 'express-mongo-sanitize'
 import rateLimit from 'express-rate-limit'
 
 dotenv.config()
@@ -25,8 +24,18 @@ const __dirname = path.dirname(__filename)
 
 connectMongo()
 
-app.use(helmet())
-app.use(mongoSanitize())
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "http://localhost:5173", "'unsafe-inline'"],
+            styleSrc: ["'self'", "http://localhost:5173", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            connectSrc: ["'self'", "http://localhost:5173", "ws://localhost:5173"],
+            imgSrc: ["'self'", "data:", "https:"],
+        }
+    }
+}))
 app.use(rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
     max: 100,                  // máx 100 peticiones por IP
@@ -35,6 +44,23 @@ app.use(rateLimit({
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
+
+// Sanitización NoSQL manual - compatible con Express 5
+app.use((req, res, next) => {
+    const sanitize = (obj) => {
+        if (!obj || typeof obj !== 'object') return
+        for (const key of Object.keys(obj)) {
+            if (key.startsWith('$') || key.includes('.')) {
+                delete obj[key]
+            } else if (typeof obj[key] === 'object') {
+                sanitize(obj[key])
+            }
+        }
+    }
+    sanitize(req.body)
+    sanitize(req.params)
+    next()
+})
 
 app.use('/build', express.static(path.resolve(process.cwd(), 'public/build')))
 app.use(express.static(path.resolve(process.cwd(), 'public')))
