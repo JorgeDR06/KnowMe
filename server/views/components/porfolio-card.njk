@@ -1,0 +1,53 @@
+<article
+  class="group bg-[#0f0f18] border border-slate-800 rounded-xl overflow-hidden hover:border-emerald-500/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40 cursor-pointer"
+  onclick="window.location='/porfolios/{{ porfolio._id }}'"
+>
+  <div class="aspect-video bg-[#0d0d14] relative overflow-hidden">
+    {% if porfolio.media and porfolio.media.length > 0 %}
+      <img
+        src="{{ porfolio.media[0].url }}"
+        alt="{{ porfolio.title }}"
+        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+      />
+    {% else %}
+      <div class="w-full h-full flex items-center justify-center flex-col gap-2">
+        <svg class="w-10 h-10 text-slate-700" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/>
+        </svg>
+        <span class="text-xs font-mono text-slate-700">sin imagen</span>
+      </div>
+    {% endif %}
+
+    {% if porfolio.featured %}
+    <span class="absolute top-2 right-2 bg-emerald-500/90 text-[#0a0a0f] text-[10px] font-mono font-bold px-2 py-0.5 rounded-full">
+      ★ featured
+    </span>
+    {% endif %}
+  </div>
+
+  <div class="p-4">
+    <h3 class="text-sm font-bold text-slate-100 mb-2 truncate group-hover:text-emerald-400 transition-colors">
+      {{ porfolio.title }}
+    </h3>
+    <div class="flex items-center gap-2 mb-3">
+      <div class="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-400 to-violet-500 flex items-center justify-center text-[10px] font-bold text-black shrink-0">
+        {{ porfolio.owner.username[0] | upper if porfolio.owner.username else "?" }}
+      </div>
+      <span class="text-xs text-slate-500 font-mono truncate">
+        {{ porfolio.owner.username if porfolio.owner.username else "usuario" }}
+      </span>
+    </div>
+    <div class="flex flex-wrap gap-1.5">
+      {% for tech in porfolio.technologies %}
+        {% if loop.index <= 3 %}
+        <span class="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded text-[10px] font-mono text-slate-400">
+          {{ tech.name }}
+        </span>
+        {% endif %}
+      {% endfor %}
+      {% if porfolio.technologies.length > 3 %}
+      <span class="text-[10px] font-mono text-slate-600">+{{ porfolio.technologies.length - 3 }}</span>
+      {% endif %}
+    </div>
+  </div>
+</article>

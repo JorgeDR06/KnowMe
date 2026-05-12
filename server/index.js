@@ -98,8 +98,7 @@ app.get('/', (req, res) => {
 })
 
 app.get('/porfolios', async (req, res) => {
-    const result = await Porfolio.find().populate('owner', 'username avatar')
-    res.render('porfolios', { active: 'porfolios', porfolios: result })
+    res.render('porfolios', { active: 'porfolios' })
 })
 
 const port = process.env.PORT || 3000
