@@ -1,0 +1,280 @@
+{% extends "base.njk" %}
+
+{% block titulo %}{{ porfolio.title }} — KnowMe{% endblock %}
+
+{% block contenido %}
+
+<!-- highlight.js -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+<div class="min-h-screen bg-[#0a0a0f] text-slate-300">
+  <div class="max-w-[1300px] mx-auto px-6 py-10">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-xs font-mono text-slate-600 mb-8">
+      <a href="/porfolios" class="hover:text-emerald-400 transition-colors">porfolios</a>
+      <span>/</span>
+      <span class="text-slate-400">{{ porfolio.title }}</span>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         PARTE SUPERIOR — layout Steam
+    ════════════════════════════════════════ -->
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 mb-12">
+
+      <!-- IZQUIERDA: galería -->
+      <div class="flex flex-col gap-3">
+
+        <!-- Imagen/video principal -->
+        <div class="aspect-video bg-[#0d0d14] rounded-xl overflow-hidden border border-slate-800 relative">
+          {% if porfolio.media and porfolio.media.length > 0 %}
+            {% if porfolio.media[0].type == 'video' %}
+              <video id="main-media" src="{{ porfolio.media[0].url }}" controls class="w-full h-full object-cover"></video>
+            {% else %}
+              <img id="main-media" src="{{ porfolio.media[0].url }}" alt="{{ porfolio.title }}" class="w-full h-full object-cover"/>
+            {% endif %}
+          {% else %}
+            <div class="w-full h-full flex items-center justify-center flex-col gap-3">
+              <svg class="w-14 h-14 text-slate-700" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <rect x="3" y="3" width="18" height="18" rx="2"/><path d="m3 9 4-4 4 4 4-4 4 4"/>
+              </svg>
+              <span class="text-sm font-mono text-slate-700">sin media</span>
+            </div>
+          {% endif %}
+
+          {% if porfolio.featured %}
+          <span class="absolute top-3 right-3 bg-emerald-500/90 text-[#0a0a0f] text-[10px] font-mono font-bold px-2.5 py-1 rounded-full">
+            ★ featured
+          </span>
+          {% endif %}
+        </div>
+
+        <!-- Thumbnails -->
+        {% if porfolio.media and porfolio.media.length > 1 %}
+        <div class="flex gap-2 overflow-x-auto pb-1">
+          {% for item in porfolio.media %}
+          <button
+            onclick="switchMedia('{{ item.url }}', '{{ item.type }}')"
+            class="thumbnail-btn shrink-0 w-24 aspect-video rounded-lg overflow-hidden border-2 transition-all
+              {% if loop.first %}border-emerald-500{% else %}border-slate-800 hover:border-slate-600{% endif %}"
+          >
+            {% if item.type == 'video' %}
+              <div class="w-full h-full bg-[#0d0d14] flex items-center justify-center">
+                <svg class="w-6 h-6 text-slate-400" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </div>
+            {% else %}
+              <img src="{{ item.url }}" alt="" class="w-full h-full object-cover"/>
+            {% endif %}
+          </button>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+      </div>
+
+      <!-- DERECHA: info general -->
+      <div class="flex flex-col gap-5">
+
+        <!-- Título y owner -->
+        <div>
+          <h1 class="text-2xl font-bold text-white mb-3 leading-tight">{{ porfolio.title }}</h1>
+          <a href="/usuarios/{{ porfolio.owner._id }}" class="flex items-center gap-3 group w-fit">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-violet-500 flex items-center justify-center text-sm font-bold text-black shrink-0">
+              {{ porfolio.owner.username[0] | upper if porfolio.owner.username else "?" }}
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-slate-200 group-hover:text-emerald-400 transition-colors">
+                {{ porfolio.owner.username if porfolio.owner.username else "usuario" }}
+              </p>
+              <p class="text-xs text-slate-600 font-mono">ver perfil →</p>
+            </div>
+          </a>
+        </div>
+
+        <!-- Descripción corta -->
+        <p class="text-sm text-slate-400 leading-relaxed">
+          {{ porfolio.description | truncate(200) }}
+        </p>
+
+        <!-- Tecnologías -->
+        {% if porfolio.technologies and porfolio.technologies.length > 0 %}
+        <div>
+          <p class="text-xs font-mono text-emerald-400 uppercase tracking-widest mb-2">// tecnologías</p>
+          <div class="flex flex-wrap gap-2">
+            {% for tech in porfolio.technologies %}
+            <span class="px-3 py-1 bg-slate-800 border border-slate-700 rounded-full text-xs font-mono text-slate-300 hover:border-emerald-500/40 hover:text-emerald-400 transition-all">
+              {{ tech.name }}
+            </span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Lenguajes -->
+        {% if porfolio.languages and porfolio.languages.length > 0 %}
+        <div>
+          <p class="text-xs font-mono text-violet-400 uppercase tracking-widest mb-2">// lenguajes</p>
+          <div class="flex flex-wrap gap-2">
+            {% for lang in porfolio.languages %}
+            <span class="px-3 py-1 bg-slate-800 border border-slate-700 rounded-full text-xs font-mono text-slate-300 hover:border-violet-500/40 hover:text-violet-400 transition-all">
+              {{ lang.name }}
+            </span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Enlaces -->
+        <div class="flex flex-col gap-2 mt-auto pt-2">
+          {% if porfolio.githubRepo %}
+          <a href="{{ porfolio.githubRepo }}" target="_blank"
+            class="flex items-center gap-3 px-4 py-2.5 bg-[#0f0f18] border border-slate-800 rounded-lg hover:border-slate-600 transition-all group">
+            <svg class="w-4 h-4 text-slate-400 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            <span class="text-sm font-mono text-slate-400 group-hover:text-white transition-colors">GitHub</span>
+            <svg class="w-3 h-3 text-slate-600 ml-auto" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6m4-3h6v6m-11 5L21 3"/>
+            </svg>
+          </a>
+          {% endif %}
+
+          {% if porfolio.liveDemo %}
+          <a href="{{ porfolio.liveDemo }}" target="_blank"
+            class="flex items-center gap-3 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all group">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            <span class="text-sm font-mono text-emerald-400">Live Demo</span>
+            <svg class="w-3 h-3 text-emerald-600 ml-auto" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6m4-3h6v6m-11 5L21 3"/>
+            </svg>
+          </a>
+          {% endif %}
+
+          <!-- Contactar -->
+          <button class="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0f0f18] border border-slate-800 rounded-lg hover:border-slate-600 transition-all text-sm font-mono text-slate-400 hover:text-white">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            Contactar
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PARTE INFERIOR -->
+    <div class="border-t border-slate-800 pt-10 flex flex-col gap-10">
+
+      <!-- Descripción completa -->
+      <div>
+        <p class="text-xs font-mono text-emerald-400 uppercase tracking-widest mb-4">// descripción</p>
+        <p class="text-slate-400 leading-relaxed max-w-3xl">{{ porfolio.description }}</p>
+      </div>
+
+      <!-- Partes de código -->
+      {% if porfolio.codeSnippets and porfolio.codeSnippets.length > 0 %}
+      <div>
+        <p class="text-xs font-mono text-emerald-400 uppercase tracking-widest mb-4">// código</p>
+
+        <!-- Pestañas -->
+        <div class="flex gap-1 border-b border-slate-800 mb-0 overflow-x-auto">
+          {% for snippet in porfolio.codeSnippets %}
+          <button
+            onclick="switchTab({{ loop.index0 }})"
+            id="tab-{{ loop.index0 }}"
+            class="tab-btn shrink-0 px-4 py-2 text-xs font-mono border-b-2 transition-all
+              {% if loop.first %}border-emerald-500 text-emerald-400{% else %}border-transparent text-slate-500 hover:text-slate-300{% endif %}"
+          >
+            {{ snippet.title }}
+            <span class="ml-2 text-[10px] opacity-60">{{ snippet.language }}</span>
+          </button>
+          {% endfor %}
+        </div>
+
+        <!-- Contenido pestañas -->
+        {% for snippet in porfolio.codeSnippets %}
+        <div id="snippet-{{ loop.index0 }}" class="snippet-panel {% if not loop.first %}hidden{% endif %}">
+          <div class="relative">
+            <div class="flex items-center justify-between bg-[#0d0d14] border border-slate-800 border-b-0 rounded-t-lg px-4 py-2">
+              <span class="text-xs font-mono text-slate-500">{{ snippet.language }}</span>
+              <button onclick="copyCode({{ loop.index0 }}, this)" class="text-xs font-mono text-slate-500 hover:text-emerald-400 transition-colors flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+                copiar
+              </button>
+            </div>
+            <pre class="rounded-b-lg rounded-t-none m-0 border border-slate-800"><code id="code-{{ loop.index0 }}" class="language-{{ snippet.language | lower }}">{{ snippet.code }}</code></pre>
+          </div>
+        </div>
+        {% endfor %}
+
+      </div>
+      {% endif %}
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', () => {
+        hljs.highlightAll()
+    })
+
+  window.switchMedia = function(url, type) {
+    const container = document.querySelector('.aspect-video')
+    const old = document.getElementById('main-media')
+
+    let newEl
+    if (type === 'video') {
+      newEl = document.createElement('video')
+      newEl.controls = true
+      newEl.className = 'w-full h-full object-cover'
+    } else {
+      newEl = document.createElement('img')
+      newEl.alt = '{{ porfolio.title }}'
+      newEl.className = 'w-full h-full object-cover'
+    }
+    newEl.id = 'main-media'
+    newEl.src = url
+    old.replaceWith(newEl)
+
+    document.querySelectorAll('.thumbnail-btn').forEach(btn => {
+      btn.classList.remove('border-emerald-500')
+      btn.classList.add('border-slate-800')
+    })
+    event.currentTarget.classList.remove('border-slate-800')
+    event.currentTarget.classList.add('border-emerald-500')
+  }
+
+    window.switchTab = function(index) {
+        document.querySelectorAll('.snippet-panel').forEach(p => p.classList.add('hidden'))
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('border-emerald-500', 'text-emerald-400')
+            b.classList.add('border-transparent', 'text-slate-500')
+        })
+        document.getElementById('snippet-' + index).classList.remove('hidden')
+        const tab = document.getElementById('tab-' + index)
+        tab.classList.remove('border-transparent', 'text-slate-500')
+        tab.classList.add('border-emerald-500', 'text-emerald-400')
+    }
+
+    window.copyCode = function(index, btn) {
+        const code = document.getElementById('code-' + index).innerText
+        navigator.clipboard.writeText(code).then(() => {
+            const original = btn.innerHTML
+            btn.innerHTML = '✓ copiado'
+            btn.classList.add('text-emerald-400')
+            setTimeout(() => { btn.innerHTML = original; btn.classList.remove('text-emerald-400') }, 2000)
+        })
+    }
+</script>
+
+{% endblock %}
