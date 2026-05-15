@@ -1,6 +1,5 @@
 import mongoose from 'mongoose'
 
-
 const invitationSchema = new mongoose.Schema({
     key: { 
         type: String, 

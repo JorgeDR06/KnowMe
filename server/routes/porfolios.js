@@ -90,7 +90,7 @@ router.get('/:id', async (req, res) => {
 // POST: Crear porfoliolio (usuario registrado)
 router.post('/', async (req, res) => {
     try {
-        const { title, description, media, technologies, languages, githubRepo, liveDemo, featured } = req.body;
+        const { title, description, media, technologies, languages, githubRepo, liveDemo, featured, codeSnippets } = req.body;
 
         if (!title || !description) {
             return res.status(400).send({ error: "Faltan campos obligatorios: title y description" });
@@ -163,7 +163,7 @@ router.put('/:id', async (req, res) => {
             return res.status(403).send({ error: "No tienes permiso para editar este porfolio" });
         }*/
 
-        const { title, description, media, technologies, languages, githubRepo, liveDemo, featured } = req.body;
+        const { title, description, media, technologies, languages, githubRepo, liveDemo, featured, codeSnippets } = req.body;
 
         if (title !== undefined && (title.length < 3 || title.length > 100)) {
             return res.status(400).send({ error: "El título debe tener entre 3 y 100 caracteres" });
@@ -193,7 +193,7 @@ router.put('/:id', async (req, res) => {
 
         const result = await Porfolio.findByIdAndUpdate(
             req.params.id,
-            { $set: { title, description, media, technologies, languages, githubRepo, liveDemo, featured } },
+            { $set: { title, description, media, technologies, languages, githubRepo, liveDemo, featured, codeSnippets } },
             { new: true, runValidators: true }
         );
 

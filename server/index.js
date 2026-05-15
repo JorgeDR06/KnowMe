@@ -28,11 +28,13 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "http://localhost:5173", "'unsafe-inline'"],
-            styleSrc: ["'self'", "http://localhost:5173", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            scriptSrc: ["'self'", "http://localhost:5173", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+            scriptSrcAttr: ["'unsafe-inline'"],
+            styleSrc: ["'self'", "http://localhost:5173", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
             fontSrc: ["'self'", "https://fonts.gstatic.com"],
             connectSrc: ["'self'", "http://localhost:5173", "ws://localhost:5173"],
             imgSrc: ["'self'", "data:", "https:"],
+            mediaSrc: ["'self'", "https:"],
         }
     }
 }))
@@ -45,7 +47,7 @@ app.use(rateLimit({
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 
-// Sanitización NoSQL manual - compatible con Express 5
+// Sanitización NoSQL manual 
 app.use((req, res, next) => {
     const sanitize = (obj) => {
         if (!obj || typeof obj !== 'object') return
@@ -112,7 +114,23 @@ app.get('/perfil', (req, res) => {
 });
 
 app.get('/porfolios', async (req, res) => {
-    res.render('porfolios', { active: 'porfolios' })
+    res.render('porfolio/porfolios')
+})
+
+app.get('/porfolios/:id', async (req, res) => {
+    try {
+        const porfolio = await Porfolio.findById(req.params.id)
+            .populate('owner', 'username avatar socialLinks')
+            .populate('technologies')
+            .populate('languages')
+
+        if (!porfolio) return res.render('error', { error: 'Porfolio no encontrado' })
+
+        res.render('porfolio/porfolio-detalle', { active: 'porfolios', porfolio })
+    } catch (error) {
+        console.log(error)
+        res.render('error', { error: 'Error al cargar el porfolio' })
+    }
 })
 
 const port = process.env.PORT || 3000
