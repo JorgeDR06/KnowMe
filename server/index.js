@@ -4,17 +4,21 @@ import { fileURLToPath } from 'node:url'
 import nunjucks from 'nunjucks'
 import dotenv from 'dotenv'
 import methodOverride from 'method-override'
+import cookieParser from 'cookie-parser'
 
 import connectMongo from './config/mongoose.js'
 import Usuarios from './routes/user.js'
+import User from './models/User.js'
 import { viteAsset, viteCssFiles, isDev } from './utils/vite-assets.js'
 import Porfolios from './routes/porfolios.js';
 import Porfolio from './models/porfolio.js'
 import Technologies from './routes/technologies.js'
 import Languages from './routes/languages.js'
+import Auth from './routes/auth.js'
 
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
+import { protectRoute, requireLogin } from './auth/auth.js'
 
 dotenv.config()
 
@@ -44,6 +48,7 @@ app.use(rateLimit({
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
+app.use(cookieParser())
 
 // Sanitización NoSQL manual - compatible con Express 5
 app.use((req, res, next) => {
@@ -91,26 +96,47 @@ app.use('/api/porfolios', Porfolios)
 app.use('/api/usuarios', Usuarios)
 app.use('/api/technologies', Technologies)
 app.use('/api/languages', Languages)
+app.use('/api/auth', Auth)
 
-// Vistas
+// --- VISTAS ---
+
+// Inicio
 app.get('/', (req, res) => {
     res.render('home', { active: 'home' })
 })
 
 // Formulario de login
 app.get('/login', (req, res) => {
-    res.render('login');
+    res.render('auth/login');
 });
 
 // Formulario de registro
 app.get('/register', (req, res) => {
-    res.render('registro_usuario');
+    res.render('auth/registro_usuario');
 });
 
-app.get('/perfil', (req, res) => {
-  res.render('perfil_usuario')
+// Logout
+app.get('/logout', (req, res) => {
+  res.clearCookie('token')
+  res.redirect('/login')
+})
+
+// Perfil de usuario
+app.get('/perfil', requireLogin, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id)
+        
+        if (user) {
+            res.render('perfil/perfil_usuario', { active: 'perfil', user })
+        } else {
+            return res.redirect('/login')
+        }
+    } catch (error) {
+        res.status(500).render('error', { error: 'Error al cargar el perfil' + error.message})
+    }
 });
 
+// Biblioteca de portfolios
 app.get('/porfolios', async (req, res) => {
     res.render('porfolios', { active: 'porfolios' })
 })
