@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import User from '../models/User.js';
 import Invitation from '../models/Invitation.js';
-import { generateToken } from '../auth/auth.js'; // Asegúrate de poner el .js
+import { generateToken } from '../auth/auth.js';
 
 const router = Router();
 
@@ -42,9 +42,16 @@ router.post('/register', async (req, res) => {
         }));
         await Invitation.insertMany(invitations);
 
-        res.status(201).json({ 
-            result: "Usuario registrado e invitaciones creadas con éxito" 
+        const token = generateToken(savedUser);  
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 2 * 60 * 60 * 1000
         });
+
+        res.render('porfolios', { active: 'porfolios' })
 
     } catch (err) {
         console.error(err);
@@ -68,13 +75,15 @@ router.post('/login', async (req, res) => {
         }
 
         const token = generateToken(user);
-        
-        res.status(200).json({ 
-            result: {
-                token,
-                user: { id: user._id, name: user.name, role: user.role }
-            }
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 2 * 60 * 60 * 1000
         });
+
+        res.render('porfolios', { active: 'porfolios' })
     } catch (err) {
         res.status(500).json({ error: "Error en el servidor" });
     }

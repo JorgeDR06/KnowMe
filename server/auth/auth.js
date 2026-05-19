@@ -1,3 +1,5 @@
+import jwt from 'jsonwebtoken'
+
 // Obtenemos la clave secreta desde las variables de entorno.
 // Si por algÃºn motivo no existe en el archivo .env, ponemos un valor por defecto.
 const secret = process.env.JWT_SECRET || 'clave_por_defecto_segura';
@@ -76,9 +78,26 @@ const protectRoute = (allowedRoles) => {
     };
 };
 
+const requireLogin = (req, res, next) => {
+    const token = req.cookies.token
+    console.log('Cookie token:', token)
+
+    if (!token) return res.redirect('/login')
+
+    try {
+        const decoded = verifyToken(token)
+        req.user = decoded
+        next()
+    } catch (err) {
+        console.log('Error:', err.message)
+        return res.redirect('/login')
+    }
+}
+
 // Exportamos las funciones para usarlas en otros archivos
-module.exports = {
+export {
     generateToken,
     verifyToken,
-    protectRoute
+    protectRoute,
+    requireLogin
 };
