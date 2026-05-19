@@ -41,6 +41,7 @@
         </a>
       </li>
 
+      {% if currentUser != null %}
       <li>
         <a href="/perfil"
           class="inline-block text-[11px] uppercase tracking-widest px-3 py-1.5 rounded-md border transition-all duration-150
@@ -53,5 +54,25 @@
         </a>
       </li>
 
+      <li>
+        <a href="/logout"
+          class="inline-block text-[12px] uppercase tracking-widest ml-3 px-3 py-1.5 transition-all duration-150
+                   hover:border-emerald-400 hover:border-1 bg-transparent text-emerald-400">
+          Logout
+        </a>
+      </li>
+
+      {% else %}
+
+      <li>
+        <a href="/login"
+          class="inline-block text-[12px] uppercase tracking-widest ml-3 px-3 py-1.5 transition-all duration-150
+                   hover:border-emerald-400 hover:border-1 bg-transparent text-emerald-400">
+          Login
+        </a>
+      </li>
+      
+      {% endif %}
+      
     </ul>
   </div>

@@ -80,7 +80,6 @@ const protectRoute = (allowedRoles) => {
 
 const requireLogin = (req, res, next) => {
     const token = req.cookies.token
-    console.log('Cookie token:', token)
 
     if (!token) return res.redirect('/login')
 

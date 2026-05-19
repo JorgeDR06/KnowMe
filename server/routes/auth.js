@@ -51,7 +51,7 @@ router.post('/register', async (req, res) => {
             maxAge: 2 * 60 * 60 * 1000
         });
 
-        res.render('porfolios', { active: 'porfolios' })
+        res.redirect('/porfolios')
 
     } catch (err) {
         console.error(err);
@@ -83,7 +83,7 @@ router.post('/login', async (req, res) => {
             maxAge: 2 * 60 * 60 * 1000
         });
 
-        res.render('porfolios', { active: 'porfolios' })
+        res.redirect('/porfolios')
     } catch (err) {
         res.status(500).json({ error: "Error en el servidor" });
     }
