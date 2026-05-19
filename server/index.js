@@ -18,7 +18,7 @@ import Auth from './routes/auth.js'
 
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
-import { protectRoute, requireLogin } from './auth/auth.js'
+import { protectRoute, requireLogin, verifyToken } from './auth/auth.js'
 
 dotenv.config()
 
@@ -50,7 +50,22 @@ app.use(rateLimit({
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
+
 app.use(cookieParser())
+
+// Hace disponible al usuario dispponible en todas las vistas si está autenticado
+app.use((req, res, next) => {
+    const token = req.cookies.token
+    if (token) {
+        try {
+            req.user = verifyToken(token)
+        } catch (e) {
+            req.user = null
+        }
+    }
+    res.locals.currentUser = req.user || null
+    next()
+})
 
 // Sanitización NoSQL manual 
 app.use((req, res, next) => {
@@ -140,7 +155,7 @@ app.get('/perfil', requireLogin, async (req, res) => {
 
 // Biblioteca de portfolios
 app.get('/porfolios', async (req, res) => {
-    res.render('porfolio/porfolios')
+    res.render('porfolio/porfolios', {active: 'porfolios'})
 })
 
 app.get('/porfolios/:id', async (req, res) => {
