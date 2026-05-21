@@ -14,7 +14,7 @@ const generateToken = (user) => {
     const payload = {
         id: user._id,
         login: user.login,
-        rol: user.rol // Importante para gestionar los permisos luego
+        role: user.role // Importante para gestionar los permisos luego
     };
     
     // Firmamos el token con nuestro secreto y le damos un tiempo de expiraciÃ³n (ej. 2 horas)
@@ -93,10 +93,25 @@ const requireLogin = (req, res, next) => {
     }
 }
 
+const requireAdmin = (req, res, next) => {
+    const token = req.cookies.token
+    if (!token) return res.redirect('/login')
+
+    try {
+        const decoded = verifyToken(token)
+        req.user = decoded
+        if (req.user.role !== 'admin') return res.status(403).render('error', { error: 'Acceso no autorizado' })
+        next()
+    } catch (err) {
+        return res.redirect('/login')
+    }
+}
+
 // Exportamos las funciones para usarlas en otros archivos
 export {
     generateToken,
     verifyToken,
     protectRoute,
-    requireLogin
+    requireLogin,
+    requireAdmin
 };

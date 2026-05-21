@@ -2,6 +2,7 @@ import { Router } from 'express';
 import crypto from 'crypto';
 import User from '../models/User.js';
 import Invitation from '../models/Invitation.js';
+import { protectRoute, requireLogin, verifyToken, requireAdmin } from '../auth/auth.js'
 
 let router = Router();
 
@@ -38,33 +39,30 @@ router.get('/:id', async (req, res) => {
 // Actualizar usuario
 router.put('/:id', async (req, res) => {
     try {
-        await User.findByIdAndUpdate(req.params.id, req.body);
-        res.redirect(req.baseUrl);
+        await User.findByIdAndUpdate(req.params.id, {
+            $set: {
+                name: req.body.name,
+                email: req.body.email,
+                bio: req.body.bio,
+                role: req.body.role,
+                avatar: req.body.avatar,
+                socialLinks: req.body.socialLinks
+            }
+        });
+        res.redirect('/usuarios');
     } catch (error) {
         res.status(500).render('error', { error: "Error al actualizar" });
     }
 });
 
-// Ruta para editar el usuario desde el perfil
-router.put('/:id', (req, res) => {
-    User.findByIdAndUpdate(req.params.id, {
-        $set: {
-            name: req.body.name,
-            email: req.body.email,
-            password: req.body.password,
-            bio: req.body.bio,
-            skills: req.body.skills,
-            languajes: req.body.languajes,
-            role: req.body.role,
-            avatar: req.body.avatar,
-            socialLinks: req.body.socialLinks,
-            invitedBy: req.body.invitedBy
-        }
-    }, {new: true}).then(resultado => {
-        res.redirect(req.baseUrl);
-    }).catch(error => {
-        res.render('error', {error: "Error modificando contacto"});
-    });
-});
+// Eliminar usuario
+router.delete('/:id', requireAdmin, async (req, res) => {
+    try {
+        await User.findByIdAndDelete(req.params.id)
+        res.redirect('/usuarios')
+    } catch (error) {
+        res.status(500).render('error', { error: 'Error al eliminar el usuario' })
+    }
+})
 
 export default router;

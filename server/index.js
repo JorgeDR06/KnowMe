@@ -18,7 +18,7 @@ import Auth from './routes/auth.js'
 
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
-import { protectRoute, requireLogin, verifyToken } from './auth/auth.js'
+import { protectRoute, requireLogin, verifyToken, requireAdmin } from './auth/auth.js'
 
 dotenv.config()
 
@@ -152,6 +152,26 @@ app.get('/perfil', requireLogin, async (req, res) => {
         res.status(500).render('error', { error: 'Error al cargar el perfil' + error.message})
     }
 });
+
+// Gestion de usuarios
+app.get('/usuarios', requireAdmin, async (req, res) => {
+    try {
+        const users = await User.find().sort({ createdAt: -1 })
+        res.render('usuario/usuarios', { active: 'admin', users })
+    } catch (error) {
+        res.status(500).render('error', { error: 'Error al cargar usuarios' })
+    }
+})
+
+app.get('/usuarios/:id/editar', requireAdmin, async (req, res) => {
+    try {
+        const u = await User.findById(req.params.id)
+        if (!u) return res.redirect('/usuario/usuarios')
+        res.render('usuario/usuario_editar', { active: 'admin', u })
+    } catch (error) {
+        res.status(500).render('error', { error: 'Error al cargar el usuario' })
+    }
+})
 
 // Biblioteca de portfolios
 app.get('/porfolios', async (req, res) => {
