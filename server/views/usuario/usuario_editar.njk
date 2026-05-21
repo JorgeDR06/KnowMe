@@ -1,0 +1,100 @@
+{% extends "base.njk" %}
+
+{% block titulo %}Editar {{ u.name }} — Admin · KnowMe{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-[#0a0a0f] text-slate-300">
+  <div class="max-w-[640px] mx-auto px-6 py-10 flex flex-col gap-8">
+
+    {# HEADER #}
+    <div class="flex items-center gap-4">
+      <a href="/usuarios"
+         class="text-slate-600 hover:text-slate-300 transition-colors font-mono text-xs">← volver</a>
+      <div class="flex flex-col gap-1">
+        <span class="text-[10px] font-mono text-amber-400 uppercase tracking-widest">// editar usuario</span>
+        <h1 class="text-xl font-mono font-bold text-slate-100">{{ u.name }}</h1>
+      </div>
+    </div>
+
+    {# FORMULARIO #}
+    <div class="bg-[#0f0f18] border border-slate-800 rounded-2xl overflow-hidden">
+      <div class="h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent"></div>
+
+      <form method="POST" action="/api/usuarios/{{ u._id }}" class="p-8 flex flex-col gap-6">
+        <input type="hidden" name="_method" value="PUT">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+          {# Nombre #}
+          <div class="flex flex-col gap-2">
+            <label class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest">// nombre</label>
+            <input type="text" name="name" value="{{ u.name }}" required
+                   class="bg-[#0a0a0f] border border-slate-700 rounded-lg px-4 py-2.5 text-sm font-mono text-slate-200 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all placeholder-slate-700"/>
+          </div>
+
+          {# Email #}
+          <div class="flex flex-col gap-2">
+            <label class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest">// email</label>
+            <input type="email" name="email" value="{{ u.email }}" required
+                   class="bg-[#0a0a0f] border border-slate-700 rounded-lg px-4 py-2.5 text-sm font-mono text-slate-200 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all placeholder-slate-700"/>
+          </div>
+
+        </div>
+
+        {# Bio #}
+        <div class="flex flex-col gap-2">
+          <label class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest">// bio</label>
+          <textarea name="bio" rows="3" placeholder="// sin bio"
+                    class="bg-[#0a0a0f] border border-slate-700 rounded-lg px-4 py-2.5 text-sm font-mono text-slate-200 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all placeholder-slate-700 resize-none">{{ u.bio }}</textarea>
+        </div>
+
+        {# Avatar #}
+        <div class="flex flex-col gap-2">
+          <label class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest">// avatar url</label>
+          <input type="text" name="avatar" value="{{ u.avatar }}" placeholder="https://..."
+                 class="bg-[#0a0a0f] border border-slate-700 rounded-lg px-4 py-2.5 text-sm font-mono text-slate-200 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all placeholder-slate-700"/>
+        </div>
+
+        {# Rol #}
+        <div class="flex flex-col gap-2">
+          <label class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest">// rol</label>
+          <select name="role"
+                  class="bg-[#0a0a0f] border border-slate-700 rounded-lg px-4 py-2.5 text-sm font-mono text-slate-200 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all">
+            <option value="user" {% if u.role === 'user' %}selected{% endif %}>user</option>
+            <option value="admin" {% if u.role === 'admin' %}selected{% endif %}>admin</option>
+          </select>
+        </div>
+
+        {# Social links #}
+        <div class="flex flex-col gap-4">
+          <label class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest">// social links</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <input type="text" name="socialLinks[github]" value="{{ u.socialLinks.github }}" placeholder="GitHub URL"
+                   class="bg-[#0a0a0f] border border-slate-700 rounded-lg px-4 py-2.5 text-sm font-mono text-slate-200 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all placeholder-slate-700"/>
+            <input type="text" name="socialLinks[linkedin]" value="{{ u.socialLinks.linkedin }}" placeholder="LinkedIn URL"
+                   class="bg-[#0a0a0f] border border-slate-700 rounded-lg px-4 py-2.5 text-sm font-mono text-slate-200 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all placeholder-slate-700"/>
+            <input type="text" name="socialLinks[twitter]" value="{{ u.socialLinks.twitter }}" placeholder="Twitter URL"
+                   class="bg-[#0a0a0f] border border-slate-700 rounded-lg px-4 py-2.5 text-sm font-mono text-slate-200 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all placeholder-slate-700"/>
+            <input type="text" name="socialLinks[website]" value="{{ u.socialLinks.website }}" placeholder="Website URL"
+                   class="bg-[#0a0a0f] border border-slate-700 rounded-lg px-4 py-2.5 text-sm font-mono text-slate-200 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all placeholder-slate-700"/>
+          </div>
+        </div>
+
+        {# Botones #}
+        <div class="flex items-center justify-end gap-3 pt-2 border-t border-slate-800">
+          <a href="/usuarios"
+             class="px-4 py-2 border border-slate-700 rounded-lg text-slate-500 font-mono text-xs uppercase tracking-widest hover:text-slate-300 hover:border-slate-500 transition-all">
+            Cancelar
+          </a>
+          <button type="submit"
+                  class="px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 font-mono text-xs uppercase tracking-widest hover:bg-emerald-500/20 transition-all">
+            Guardar cambios
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

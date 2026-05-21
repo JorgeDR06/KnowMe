@@ -1,0 +1,100 @@
+{% extends "base.njk" %}
+
+{% block titulo %}Admin — Usuarios · KnowMe{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-[#0a0a0f] text-slate-300">
+  <div class="max-w-[1100px] mx-auto px-6 py-10 flex flex-col gap-8">
+
+    {# HEADER #}
+    <div class="flex items-center justify-between">
+      <div class="flex flex-col gap-1">
+        <span class="text-[10px] font-mono text-amber-400 uppercase tracking-widest">// panel de administración</span>
+        <h1 class="text-xl font-mono font-bold text-slate-100 tracking-tight">Gestión de usuarios</h1>
+      </div>
+      <a href="/register"
+         class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 font-mono text-xs uppercase tracking-widest hover:bg-emerald-500/20 transition-all">
+        <span>+</span> Nuevo usuario
+      </a>
+    </div>
+
+    {# TABLA #}
+    <div class="bg-[#0f0f18] border border-slate-800 rounded-2xl overflow-hidden">
+      <div class="h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent"></div>
+
+      {% if users and users | length > 0 %}
+      <table class="w-full text-sm font-mono">
+        <thead>
+          <tr class="border-b border-slate-800 text-[10px] uppercase tracking-widest text-slate-600">
+            <th class="text-left px-6 py-4">Usuario</th>
+            <th class="text-left px-6 py-4 max-sm:hidden">Email</th>
+            <th class="text-left px-6 py-4 max-sm:hidden">Rol</th>
+            <th class="text-right px-6 py-4">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+          <tr class="border-b border-slate-800/50 hover:bg-white/[0.02] transition-colors">
+
+            {# Avatar + nombre #}
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                {% if u.avatar %}
+                  <img src="{{ u.avatar }}" alt="" class="w-8 h-8 rounded-lg object-cover border border-slate-700"/>
+                {% else %}
+                  <div class="w-8 h-8 rounded-lg bg-[#0a0a0f] border border-slate-700 flex items-center justify-center text-xs font-bold text-emerald-400/60">
+                    {{ u.name[0] | upper }}
+                  </div>
+                {% endif %}
+                <span class="text-slate-200 text-xs">{{ u.name }}</span>
+              </div>
+            </td>
+
+            <td class="px-6 py-4 text-slate-500 text-xs max-sm:hidden">{{ u.email }}</td>
+
+            <td class="px-6 py-4 max-sm:hidden">
+              {% if u.role === 'admin' %}
+                <span class="px-2 py-0.5 bg-amber-500/10 border border-amber-500/30 rounded text-amber-400 text-[10px] uppercase tracking-widest">admin</span>
+              {% else %}
+                <span class="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded text-slate-500 text-[10px] uppercase tracking-widest">user</span>
+              {% endif %}
+            </td>
+
+            {# Acciones #}
+            <td class="px-6 py-4">
+              <div class="flex items-center justify-end gap-2">
+                <a href="/usuarios/{{ u._id }}/editar"
+                   class="px-3 py-1.5 bg-[#0a0a0f] border border-slate-700 rounded-md text-slate-400 text-[10px] uppercase tracking-widest hover:border-slate-500 hover:text-slate-200 transition-all">
+                  Editar
+                </a>
+                <form method="POST" action="api/usuarios/{{ u._id }}"
+                      onsubmit="return confirm('¿Eliminar a {{ u.name }}? Esta acción no se puede deshacer.')">
+                      <input type="hidden" name="_method" value="DELETE">
+                  <button type="submit"
+                          class="px-3 py-1.5 bg-red-500/5 border border-red-500/20 rounded-md text-red-400 text-[10px] uppercase tracking-widest hover:bg-red-500/10 hover:border-red-500/40 transition-all">
+                    Eliminar
+                  </button>
+                </form>
+              </div>
+            </td>
+
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% else %}
+      <div class="py-16 flex items-center justify-center">
+        <span class="font-mono text-sm text-slate-700 italic">// no hay usuarios registrados</span>
+      </div>
+      {% endif %}
+
+      {# Footer con total #}
+      <div class="px-6 py-3 border-t border-slate-800/50 flex items-center justify-end">
+        <span class="text-[10px] font-mono text-slate-700">{{ users | length }} usuarios en total</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
