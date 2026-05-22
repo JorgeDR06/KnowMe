@@ -36,6 +36,25 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+// Actualizar usuario desde perfil
+router.put('/:id/perfil', async (req, res) => {
+    try {
+        await User.findByIdAndUpdate(req.params.id, {
+            $set: {
+                name: req.body.name,
+                email: req.body.email,
+                bio: req.body.bio,
+                role: req.body.role,
+                avatar: req.body.avatar,
+                socialLinks: req.body.socialLinks
+            }
+        });
+        res.redirect('/perfil/' + req.params.id);
+    } catch (error) {
+        res.status(500).render('error', { error: "Error al actualizar" });
+    }
+});
+
 // Actualizar usuario
 router.put('/:id', async (req, res) => {
     try {

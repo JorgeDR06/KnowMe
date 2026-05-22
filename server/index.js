@@ -139,12 +139,12 @@ app.get('/logout', (req, res) => {
 })
 
 // Perfil de usuario
-app.get('/perfil', requireLogin, async (req, res) => {
+app.get('/perfil/:id', async (req, res) => {
     try {
-        const user = await User.findById(req.user.id)
+        const user = await User.findById(req.params.id)
         
         if (user) {
-            res.render('perfil/perfil_usuario', { active: 'perfil', user })
+            res.render('perfil/perfil_publico', { active: 'perfil', user })
         } else {
             return res.redirect('/login')
         }
@@ -152,6 +152,11 @@ app.get('/perfil', requireLogin, async (req, res) => {
         res.status(500).render('error', { error: 'Error al cargar el perfil' + error.message})
     }
 });
+
+app.get('/perfil', requireLogin, async (req, res) => {
+    const user = await User.findById(req.user.id)
+    res.render('perfil/perfil_usuario', { active: 'perfil', user })
+})
 
 // Gestion de usuarios
 app.get('/usuarios', requireAdmin, async (req, res) => {
