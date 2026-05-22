@@ -5,18 +5,18 @@
 {% block contenido %}
 
 <div class="min-h-screen bg-[#0a0a0f] text-slate-300">
-  <form method="POST" action="/api/usuarios/{{ user._id }}/perfil">
-  <input type="hidden" name="_method" value="PUT">
   <div class="max-w-[1100px] mx-auto px-6 py-10 flex flex-col gap-10">
 
     {# HEADER CARD #}
     <div class="bg-[#0f0f18] border border-slate-800 rounded-2xl overflow-hidden">
+
+      {# Top accent bar #}
       <div class="h-px bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent"></div>
 
       <div class="p-8 flex flex-col sm:flex-row gap-8 items-start">
 
         {# Avatar #}
-        <div class="flex flex-col gap-3 shrink-0 items-center">
+        <div class="relative shrink-0">
           {% if user.avatar %}
             <img src="{{ user.avatar }}" alt="Avatar de {{ user.name }}"
                  class="w-24 h-24 rounded-xl object-cover border border-slate-700 ring-2 ring-emerald-500/20"/>
@@ -28,71 +28,64 @@
             </div>
           {% endif %}
           {% if user.role === 'admin' %}
-            <span class="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/30 rounded text-amber-400 font-mono text-[9px] uppercase tracking-widest">admin</span>
+            <span class="absolute -top-2 -right-2 px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/30 rounded text-amber-400 font-mono text-[9px] uppercase tracking-widest">admin</span>
           {% endif %}
-          {# Avatar URL input #}
-          <div class="flex flex-col gap-1.5 w-24">
-            <label class="text-[9px] font-mono text-slate-600 uppercase tracking-widest text-center">// avatar url</label>
-            <input type="text" name="avatar" value="{{ user.avatar }}" placeholder="https://..."
-                   class="bg-[#0a0a0f] border border-slate-800 rounded-lg px-2 py-1.5 text-[10px] font-mono text-slate-400 focus:outline-none focus:border-emerald-500/50 transition-all placeholder-slate-800 w-full text-center"/>
-          </div>
         </div>
 
         {# Identity #}
-        <div class="flex-1 min-w-0 flex flex-col gap-4">
+        <div class="flex-1 min-w-0 flex flex-col gap-3">
 
-          {# Nombre #}
-          <div class="flex flex-col gap-1.5">
-            <label class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest">// nombre</label>
-            <input type="text" name="name" value="{{ user.name }}" required
-                   class="bg-[#0a0a0f] border border-slate-700 rounded-lg px-4 py-2.5 text-sm font-mono text-slate-200 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"/>
-          </div>
-
-          {# Email — solo lectura #}
-          <div class="flex flex-col gap-1.5">
-            <label class="text-[10px] font-mono text-slate-600 uppercase tracking-widest">// email <span class="text-slate-700 normal-case">(no editable)</span></label>
-            <input type="text" value="{{ user.email }}" disabled
-                   class="bg-transparent border border-slate-800/50 rounded-lg px-4 py-2.5 text-sm font-mono text-slate-600 cursor-not-allowed"/>
-          </div>
-
-          {# Bio #}
-          <div class="flex flex-col gap-1.5">
-            <label class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest">// bio</label>
-            <textarea name="bio" rows="3" placeholder="// cuéntanos algo sobre ti"
-                      class="bg-[#0a0a0f] border border-slate-700 rounded-lg px-4 py-2.5 text-sm font-mono text-slate-300 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all placeholder-slate-700 resize-none leading-relaxed">{{ user.bio }}</textarea>
+          <div>
+            <div class="flex items-center gap-3 flex-wrap">
+              <h1 class="text-xl font-mono font-bold text-slate-100 tracking-tight">{{ user.name }}</h1>
+              <span class="text-xs font-mono text-slate-600">·</span>
+              <span class="text-xs font-mono text-slate-500">{{ user.email }}</span>
+            </div>
+            {% if user.bio %}
+              <p class="mt-2 text-sm text-slate-400 leading-relaxed max-w-xl">{{ user.bio }}</p>
+            {% else %}
+              <p class="mt-2 text-sm font-mono text-slate-700 italic">// sin bio todavía</p>
+            {% endif %}
           </div>
 
           {# Social links #}
-          <div class="flex flex-col gap-2">
-            <label class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest">// social links</label>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {% if user.socialLinks %}
+          <div class="flex flex-wrap gap-2 mt-1">
 
-              <div class="flex items-center gap-2 bg-[#0a0a0f] border border-slate-800 rounded-lg px-3 py-2">
-                <svg class="w-3.5 h-3.5 fill-current text-slate-600 shrink-0" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.11.82-.26.82-.58v-2.03c-3.34.72-4.04-1.61-4.04-1.61-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.21.7.82.58C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
-                <input type="text" name="socialLinks[github]" value="{{ user.socialLinks.github }}" placeholder="GitHub URL"
-                       class="bg-transparent text-xs font-mono text-slate-400 focus:outline-none placeholder-slate-700 w-full focus:text-slate-200 transition-colors"/>
-              </div>
+            {% if user.socialLinks.github %}
+            <a href="{{ user.socialLinks.github }}" target="_blank" rel="noopener"
+               class="flex items-center gap-1.5 px-3 py-1.5 bg-[#0a0a0f] border border-slate-800 rounded-lg hover:border-slate-600 hover:text-slate-100 transition-all text-xs font-mono text-slate-400 group">
+              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.11.82-.26.82-.58v-2.03c-3.34.72-4.04-1.61-4.04-1.61-.54-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.14-.3-.54-1.52.1-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.21.7.82.58C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              GitHub
+            </a>
+            {% endif %}
 
-              <div class="flex items-center gap-2 bg-[#0a0a0f] border border-slate-800 rounded-lg px-3 py-2">
-                <svg class="w-3.5 h-3.5 fill-current text-slate-600 shrink-0" viewBox="0 0 24 24"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.37V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zm1.78 13.02H3.56V9h3.56v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.46c.98 0 1.77-.77 1.77-1.72V1.72C24 .77 23.21 0 22.23 0z"/></svg>
-                <input type="text" name="socialLinks[linkedin]" value="{{ user.socialLinks.linkedin }}" placeholder="LinkedIn URL"
-                       class="bg-transparent text-xs font-mono text-slate-400 focus:outline-none placeholder-slate-700 w-full focus:text-slate-200 transition-colors"/>
-              </div>
+            {% if user.socialLinks.linkedin %}
+            <a href="{{ user.socialLinks.linkedin }}" target="_blank" rel="noopener"
+               class="flex items-center gap-1.5 px-3 py-1.5 bg-[#0a0a0f] border border-slate-800 rounded-lg hover:border-slate-600 hover:text-slate-100 transition-all text-xs font-mono text-slate-400 group">
+              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.37V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zm1.78 13.02H3.56V9h3.56v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.46c.98 0 1.77-.77 1.77-1.72V1.72C24 .77 23.21 0 22.23 0z"/></svg>
+              LinkedIn
+            </a>
+            {% endif %}
 
-              <div class="flex items-center gap-2 bg-[#0a0a0f] border border-slate-800 rounded-lg px-3 py-2">
-                <svg class="w-3.5 h-3.5 fill-current text-slate-600 shrink-0" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                <input type="text" name="socialLinks[twitter]" value="{{ user.socialLinks.twitter }}" placeholder="Twitter / X URL"
-                       class="bg-transparent text-xs font-mono text-slate-400 focus:outline-none placeholder-slate-700 w-full focus:text-slate-200 transition-colors"/>
-              </div>
+            {% if user.socialLinks.twitter %}
+            <a href="{{ user.socialLinks.twitter }}" target="_blank" rel="noopener"
+               class="flex items-center gap-1.5 px-3 py-1.5 bg-[#0a0a0f] border border-slate-800 rounded-lg hover:border-slate-600 hover:text-slate-100 transition-all text-xs font-mono text-slate-400 group">
+              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.259 5.63 5.905-5.63zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              Twitter / X
+            </a>
+            {% endif %}
 
-              <div class="flex items-center gap-2 bg-[#0a0a0f] border border-slate-800 rounded-lg px-3 py-2">
-                <svg class="w-3.5 h-3.5 stroke-current fill-none text-slate-600 shrink-0" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                <input type="text" name="socialLinks[website]" value="{{ user.socialLinks.website }}" placeholder="Website URL"
-                       class="bg-transparent text-xs font-mono text-slate-400 focus:outline-none placeholder-slate-700 w-full focus:text-slate-200 transition-colors"/>
-              </div>
+            {% if user.socialLinks.website %}
+            <a href="{{ user.socialLinks.website }}" target="_blank" rel="noopener"
+               class="flex items-center gap-1.5 px-3 py-1.5 bg-[#0a0a0f] border border-slate-800 rounded-lg hover:border-slate-600 hover:text-slate-100 transition-all text-xs font-mono text-slate-400 group">
+              <svg class="w-3.5 h-3.5 stroke-current fill-none" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              Web
+            </a>
+            {% endif %}
 
-            </div>
           </div>
+          {% endif %}
 
         </div>
 
@@ -118,15 +111,18 @@
     {# ── SKILLS + LANGUAGES ───────────────────────────────────────── #}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-      {# Skills #}
+      {# Skills / Tecnologías #}
       <div class="bg-[#0f0f18] border border-slate-800 rounded-2xl p-6 flex flex-col gap-4">
         <label class="text-xs font-mono text-emerald-400 uppercase tracking-widest">// tecnologías</label>
         {% if user.skills and user.skills | length > 0 %}
           <div class="flex flex-wrap gap-2">
             {% for skill in user.skills %}
               <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#0a0a0f] border border-slate-800 rounded-md text-xs font-mono text-slate-300 hover:border-emerald-500/30 hover:text-emerald-400 transition-all cursor-default">
-                {% if skill.icon %}<img src="{{ skill.icon }}" alt="" class="w-3.5 h-3.5 object-contain opacity-70"/>
-                {% else %}<span class="w-1.5 h-1.5 rounded-full bg-emerald-500/50 inline-block"></span>{% endif %}
+                {% if skill.icon %}
+                  <img src="{{ skill.icon }}" alt="" class="w-3.5 h-3.5 object-contain opacity-70"/>
+                {% else %}
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500/50 inline-block"></span>
+                {% endif %}
                 {{ skill.name }}
               </span>
             {% endfor %}
@@ -136,15 +132,18 @@
         {% endif %}
       </div>
 
-      {# Languages #}
+      {# Languages / Lenguajes de programación #}
       <div class="bg-[#0f0f18] border border-slate-800 rounded-2xl p-6 flex flex-col gap-4">
         <label class="text-xs font-mono text-emerald-400 uppercase tracking-widest">// lenguajes</label>
         {% if user.languages and user.languages | length > 0 %}
           <div class="flex flex-wrap gap-2">
             {% for lang in user.languages %}
               <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#0a0a0f] border border-slate-800 rounded-md text-xs font-mono text-slate-300 hover:border-violet-500/30 hover:text-violet-400 transition-all cursor-default">
-                {% if lang.icon %}<img src="{{ lang.icon }}" alt="" class="w-3.5 h-3.5 object-contain opacity-70"/>
-                {% else %}<span class="w-1.5 h-1.5 rounded-full bg-violet-500/50 inline-block"></span>{% endif %}
+                {% if lang.icon %}
+                  <img src="{{ lang.icon }}" alt="" class="w-3.5 h-3.5 object-contain opacity-70"/>
+                {% else %}
+                  <span class="w-1.5 h-1.5 rounded-full bg-violet-500/50 inline-block"></span>
+                {% endif %}
                 {{ lang.name }}
               </span>
             {% endfor %}
@@ -181,11 +180,13 @@
       {% if portfolios and portfolios | length > 0 %}
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
           {% for portfolio in portfolios %}
-          <a href="/porfolios/{{ portfolio._id }}"
+          <a href="/portfolios/{{ portfolio._id }}"
              class="group bg-[#0f0f18] border border-slate-800 rounded-xl overflow-hidden hover:border-slate-600 hover:shadow-[0_0_24px_-4px_rgba(16,185,129,0.08)] transition-all duration-300 flex flex-col">
+
+            {# Cover image or placeholder #}
             <div class="aspect-video bg-[#0a0a0f] relative overflow-hidden">
-              {% if portfolio.media and portfolio.media | length > 0 %}
-                <img src="{{ portfolio.media[0].url }}" alt="{{ portfolio.title }}"
+              {% if portfolio.coverImage %}
+                <img src="{{ portfolio.coverImage }}" alt="{{ portfolio.title }}"
                      class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-500"/>
               {% else %}
                 <div class="w-full h-full flex items-center justify-center">
@@ -196,11 +197,15 @@
                 <span class="absolute top-2.5 right-2.5 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 rounded text-emerald-400 font-mono text-[9px] uppercase tracking-widest backdrop-blur-sm">★ destacado</span>
               {% endif %}
             </div>
+
+            {# Card body #}
             <div class="p-4 flex flex-col gap-2.5 flex-1">
               <h3 class="text-sm font-mono font-semibold text-slate-200 group-hover:text-emerald-400 transition-colors leading-snug line-clamp-2">{{ portfolio.title }}</h3>
+
               {% if portfolio.description %}
                 <p class="text-xs text-slate-500 leading-relaxed line-clamp-2">{{ portfolio.description }}</p>
               {% endif %}
+
               <div class="flex flex-wrap gap-1.5 mt-auto pt-1">
                 {% for tech in portfolio.technologies | slice(0, 4) %}
                   <span class="px-2 py-0.5 bg-[#0a0a0f] border border-slate-800 rounded text-[10px] font-mono text-slate-400">{{ tech.name }}</span>
@@ -210,9 +215,11 @@
                 {% endif %}
               </div>
             </div>
+
           </a>
           {% endfor %}
         </div>
+
       {% else %}
         <div class="bg-[#0f0f18] border border-slate-800/60 border-dashed rounded-xl py-16 flex flex-col items-center justify-center gap-3">
           <span class="font-mono text-slate-700 text-sm">// ningún porfolio publicado aún</span>
@@ -226,14 +233,13 @@
         <span class="w-1.5 h-1.5 rounded-full bg-slate-800 inline-block"></span>
         miembro desde {{ memberSince }}
       </div>
-      <button type="submit"
-              class="px-5 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 font-mono text-xs uppercase tracking-widest hover:bg-emerald-500/20 transition-all">
-        Guardar cambios
-      </button>
+      <a href="/perfil"
+        class="px-5 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 font-mono text-xs uppercase tracking-widest hover:bg-emerald-500/20 transition-all">
+        Editar perfil
+      </a>
     </div>
 
   </div>
-  </form>
 </div>
 
 {% endblock %}
