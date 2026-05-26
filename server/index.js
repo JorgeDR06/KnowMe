@@ -9,6 +9,8 @@ import cookieParser from 'cookie-parser'
 import connectMongo from './config/mongoose.js'
 import Usuarios from './routes/user.js'
 import User from './models/User.js'
+import Notificaciones from './routes/notification.js'
+import Notification from './models/notification.js'
 import { viteAsset, viteCssFiles, isDev } from './utils/vite-assets.js'
 import Porfolios from './routes/porfolios.js';
 import Porfolio from './models/porfolio.js'
@@ -54,7 +56,7 @@ app.use(express.json())
 app.use(cookieParser())
 
 // Hace disponible al usuario dispponible en todas las vistas si está autenticado
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
     const token = req.cookies.token
     if (token) {
         try {
@@ -64,6 +66,15 @@ app.use((req, res, next) => {
         }
     }
     res.locals.currentUser = req.user || null
+
+    if (req.user) {
+        const unreadCount = await Notification.countDocuments({ 
+            user: req.user.id, 
+            read: false 
+        })
+        res.locals.unreadCount = unreadCount
+    }
+
     next()
 })
 
@@ -114,6 +125,7 @@ app.use('/api/usuarios', Usuarios)
 app.use('/api/technologies', Technologies)
 app.use('/api/languages', Languages)
 app.use('/api/auth', Auth)
+app.use('/api/notificaciones', Notificaciones)
 
 // --- VISTAS ---
 
@@ -138,6 +150,18 @@ app.get('/logout', (req, res) => {
   res.redirect('/login')
 })
 
+// Notificaciones
+app.get('/notificaciones', requireLogin, async (req, res) => {
+    const notifications = await Notification.find({ user: req.user.id }).sort({ createdAt: -1 })
+    const formatted = notifications.map(n => {
+        const obj = n.toObject()
+        obj.fechaFormateada = new Date(n.createdAt).toLocaleDateString('es-ES', { 
+            day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' 
+        })
+        return obj
+    })
+    res.render('notificaciones/notificaciones', { active: 'notificaciones', notifications: formatted })
+})
 // Perfil de usuario
 app.get('/perfil/:id', async (req, res) => {
     try {
