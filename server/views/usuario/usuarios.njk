@@ -63,11 +63,15 @@
             {# Acciones #}
             <td class="px-6 py-4">
               <div class="flex items-center justify-end gap-2">
+                <button onclick="openNotifModal('{{ u._id }}', '{{ u.name }}')"
+                        class="px-3 py-1.5 bg-emerald-500/5 border border-emerald-500/20 rounded-md text-emerald-400 text-[10px] uppercase tracking-widest hover:bg-emerald-500/10 hover:border-emerald-500/40 transition-all">
+                  Notificar
+                </button>
                 <a href="/usuarios/{{ u._id }}/editar"
                    class="px-3 py-1.5 bg-[#0a0a0f] border border-slate-700 rounded-md text-slate-400 text-[10px] uppercase tracking-widest hover:border-slate-500 hover:text-slate-200 transition-all">
                   Editar
                 </a>
-                <form method="POST" action="api/usuarios/{{ u._id }}"
+                <form method="POST" action="/api/usuarios/{{ u._id }}"
                       onsubmit="return confirm('¿Eliminar a {{ u.name }}? Esta acción no se puede deshacer.')">
                       <input type="hidden" name="_method" value="DELETE">
                   <button type="submit"
@@ -85,7 +89,7 @@
 
       {% else %}
       <div class="py-16 flex items-center justify-center">
-        <span class="font-mono text-sm text-slate-700 italic">// no hay usuarios registrados</span>
+        <span class="font-mono text-sm text-slate-700 italic">// no hay usuarios oados</span>
       </div>
       {% endif %}
 
@@ -97,4 +101,65 @@
 
   </div>
 </div>
+
+{# ── MODAL DE NOTIFICACIÓN ──────────────────────────────────────── #}
+<div id="notifModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center px-4">
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="modalBackdrop"></div>
+  <div class="relative w-full max-w-md bg-[#0f0f18] border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+    <div class="h-px bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent"></div>
+
+    <form method="POST" action="/api/notificaciones" class="p-6 flex flex-col gap-4">
+      <input type="hidden" id="modalUserId" name="user" value="">
+
+      <div class="flex items-center justify-between">
+        <div class="flex flex-col gap-1">
+          <span class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest">// enviar notificación</span>
+          <span id="modalUserName" class="text-xs font-mono text-slate-500"></span>
+        </div>
+        <button type="button" id="modalClose" class="text-slate-600 hover:text-slate-300 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <textarea name="message" rows="4" placeholder="// escribe el mensaje..." required
+                class="bg-[#0a0a0f] border border-slate-700 rounded-lg px-4 py-3 text-sm font-mono text-slate-300 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all placeholder-slate-700 resize-none"></textarea>
+
+      <div class="flex items-center justify-end gap-3 pt-1 border-t border-slate-800">
+        <button type="button" id="modalCancel"
+                class="px-4 py-2 border border-slate-700 rounded-lg text-slate-500 font-mono text-xs uppercase tracking-widest hover:text-slate-300 hover:border-slate-500 transition-all">
+          Cancelar
+        </button>
+        <button type="submit"
+                class="px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 font-mono text-xs uppercase tracking-widest hover:bg-emerald-500/20 transition-all">
+          Enviar
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById('notifModal')
+  const modalBackdrop = document.getElementById('modalBackdrop')
+  const modalClose = document.getElementById('modalClose')
+  const modalCancel = document.getElementById('modalCancel')
+
+  function openNotifModal(userId, userName) {
+    document.getElementById('modalUserId').value = userId
+    document.getElementById('modalUserName').textContent = '→ ' + userName
+    modal.classList.remove('hidden')
+  }
+
+  function closeModal() {
+    modal.classList.add('hidden')
+  }
+
+  modalClose.addEventListener('click', closeModal)
+  modalCancel.addEventListener('click', closeModal)
+  modalBackdrop.addEventListener('click', closeModal)
+</script>
+
 {% endblock %}
