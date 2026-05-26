@@ -55,7 +55,11 @@
         </div>
 
         <button id="clear-filters" class="text-xs font-mono text-slate-600 hover:text-slate-400 transition-colors text-left">× limpiar filtros</button>
-
+        {% if currentUser %}
+          <a href="/porfolios/nuevo" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-[#0a0a0f] font-mono font-bold text-xs rounded-lg transition-all">
+            + Nuevo porfolio
+          </a>
+        {% endif %}
       </div>
     </aside>
 

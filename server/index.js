@@ -207,10 +207,15 @@ app.get('/porfolios', async (req, res) => {
     res.render('porfolio/porfolios', {active: 'porfolios'})
 })
 
+// Crear porfolio
+app.get('/porfolios/nuevo', requireLogin, (req, res) => {
+    res.render('porfolio/porfolio-form', { active: 'porfolios' })
+})
+
 app.get('/porfolios/:id', async (req, res) => {
     try {
         const porfolio = await Porfolio.findById(req.params.id)
-            .populate('owner', 'username avatar socialLinks')
+            .populate('owner', 'name avatar socialLinks')
             .populate('technologies')
             .populate('languages')
 
@@ -219,6 +224,19 @@ app.get('/porfolios/:id', async (req, res) => {
         res.render('porfolio/porfolio-detalle', { active: 'porfolios', porfolio })
     } catch (error) {
         console.log(error)
+        res.render('error', { error: 'Error al cargar el porfolio' })
+    }
+})
+
+// Editar porfolio
+app.get('/porfolios/:id/editar', requireLogin, async (req, res) => {
+    try {
+        const porfolio = await Porfolio.findById(req.params.id)
+            .populate('technologies')
+            .populate('languages')
+        if (!porfolio) return res.render('error', { error: 'Porfolio no encontrado' })
+        res.render('porfolio/porfolio-form', { active: 'porfolios', porfolio })
+    } catch (error) {
         res.render('error', { error: 'Error al cargar el porfolio' })
     }
 })

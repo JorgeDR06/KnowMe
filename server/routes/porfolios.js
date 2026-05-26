@@ -1,6 +1,7 @@
 import express from 'express'
 import Porfolio from '../models/porfolio.js'
-//import auth from '../utils/auth.js'
+import { protectRoute, requireLogin } from '../auth/auth.js' 
+import { upload } from '../config/cloudinary.js'
 
 const router = express.Router();
 
@@ -10,7 +11,7 @@ const VALID_MEDIA_TYPES = ['image', 'video'];
 // GET: Obtener todos los porfolios
 router.get('/', async (req, res) => {
     try {
-        const result = await Porfolio.find().populate('owner', 'username avatar')
+        const result = await Porfolio.find().populate('owner', 'name avatar')
             .populate('technologies')
             .populate('languages');
         if (!result || result.length === 0) {
@@ -39,7 +40,7 @@ router.get('/find', async (req, res) => {
         if (featured === 'true') query.featured = true;
 
         const result = await Porfolio.find(query)
-            .populate('owner', 'username avatar')
+            .populate('owner', 'name avatar')
             .populate('technologies')
             .populate('languages');
 
@@ -58,7 +59,7 @@ router.get('/find', async (req, res) => {
 // GET: Obtener porfolios de un usuario concreto
 router.get('/user/:userId', async (req, res) => {
     try {
-        const result = await Porfolio.find({ owner: req.params.userId }).populate('owner', 'username avatar')
+        const result = await Porfolio.find({ owner: req.params.userId }).populate('owner', 'name avatar')
             .populate('technologies')
             .populate('languages');
         if (!result || result.length === 0) {
@@ -74,7 +75,7 @@ router.get('/user/:userId', async (req, res) => {
 // GET: Obtener porfoliolio por ID
 router.get('/:id', async (req, res) => {
     try {
-        const result = await Porfolio.findById(req.params.id).populate('owner', 'username avatar')
+        const result = await Porfolio.findById(req.params.id).populate('owner', 'name avatar')
             .populate('technologies')
             .populate('languages');
         if (!result) {
@@ -88,12 +89,16 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST: Crear porfoliolio (usuario registrado)
-router.post('/', async (req, res) => {
+router.post('/', requireLogin, async (req, res) => {
     try {
         const { title, description, media, technologies, languages, githubRepo, liveDemo, featured, codeSnippets } = req.body;
 
         if (!title || !description) {
             return res.status(400).send({ error: "Faltan campos obligatorios: title y description" });
+        }
+
+        if (codeSnippets !== undefined && !Array.isArray(codeSnippets)) {
+            return res.status(400).send({ error: "El campo codeSnippets debe ser un array" })
         }
 
         if (title.length < 3 || title.length > 100) {
@@ -133,7 +138,8 @@ router.post('/', async (req, res) => {
             githubRepo,
             liveDemo,
             featured: featured ?? false,
-            owner: '69fde6921ce96ad34570d62b'
+            codeSnippets,
+            owner: req.user.id
         });
 
         const result = await porfolio.save();
@@ -149,19 +155,19 @@ router.post('/', async (req, res) => {
 });
 
 // PUT: Actualizar porfoliolio
-router.put('/:id', async (req, res) => {
+router.put('/:id',  requireLogin, async (req, res) => {
     try {
         const porfolio = await Porfolio.findById(req.params.id);
         if (!porfolio) {
             return res.status(404).send({ error: "Porfolio no encontrado" });
         }
 
-        /*const isOwner = porfolio.owner.toString() === req.user._id.toString();
+        const isOwner = porfolio.owner.toString() === req.user.id.toString();
         const isAdmin = req.user.role === 'admin';
 
         if (!isOwner && !isAdmin) {
             return res.status(403).send({ error: "No tienes permiso para editar este porfolio" });
-        }*/
+        }
 
         const { title, description, media, technologies, languages, githubRepo, liveDemo, featured, codeSnippets } = req.body;
 
@@ -209,19 +215,19 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE: Eliminar porfoliolio
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', requireLogin, async (req, res) => {
     try {
         const porfolio = await Porfolio.findById(req.params.id);
         if (!porfolio) {
             return res.status(404).send({ error: "Porfolio no encontrado" });
         }
 
-        /*const isOwner = porfolio.owner.toString() === req.user._id.toString();
+        const isOwner = porfolio.owner.toString() === req.user.id.toString();
         const isAdmin = req.user.role === 'admin';
 
         if (!isOwner && !isAdmin) {
             return res.status(403).send({ error: "No tienes permiso para eliminar este porfolio" });
-        }*/
+        }
 
         const result = await Porfolio.findByIdAndDelete(req.params.id);
         res.status(200).send({ result });
@@ -229,6 +235,23 @@ router.delete('/:id', async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(500).send({ error: "Error al eliminar el porfolio" });
+    }
+});
+
+// POST: Subir media (imagen o vídeo)
+router.post('/upload', requireLogin, upload.single('file'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).send({ error: "No se ha subido ningún archivo" })
+        }
+        res.status(200).send({
+            url: req.file.path,
+            publicId: req.file.filename,
+            type: req.file.mimetype.startsWith('video') ? 'video' : 'image'
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).send({ error: "Error al subir el archivo" })
     }
 });
 
