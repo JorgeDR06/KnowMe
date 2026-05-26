@@ -32,7 +32,7 @@ return params.toString()
 }
 
 function renderCard(p) {
-const ownerName = p.owner?.username || 'usuario'
+const ownerName = p.owner?.name || 'usuario'
 const thumb     = p.media?.find(m => m.type === 'image')
 const techTags  = (p.technologies || []).slice(0, 3).map(t =>
     `<span class="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded text-[10px] font-mono text-slate-400">${t.name}</span>`

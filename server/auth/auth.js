@@ -62,7 +62,7 @@ const protectRoute = (allowedRoles) => {
             req.user = decoded;
 
             // 3. Comprobamos si el rol del usuario estÃ¡ dentro de los roles permitidos
-            if (!allowedRoles.includes(req.user.rol)) {
+            if (!allowedRoles.includes(req.user.role)) {
                 // PDF: Si el token es vÃ¡lido pero el rol no tiene permiso -> HTTP 403
                 return res.status(403).json({ error: "Acceso no autorizado", result: null });
             }

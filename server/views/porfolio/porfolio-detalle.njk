@@ -79,13 +79,13 @@
         <!-- Título y owner -->
         <div>
           <h1 class="text-2xl font-bold text-white mb-3 leading-tight">{{ porfolio.title }}</h1>
-          <a href="/usuarios/{{ porfolio.owner._id }}" class="flex items-center gap-3 group w-fit">
+          <a href="/perfil/{{ porfolio.owner._id }}" class="flex items-center gap-3 group w-fit">
             <div class="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-violet-500 flex items-center justify-center text-sm font-bold text-black shrink-0">
-              {{ porfolio.owner.username[0] | upper if porfolio.owner.username else "?" }}
+              {{ porfolio.owner.name[0] | upper if porfolio.owner.name else "?" }}
             </div>
             <div>
               <p class="text-sm font-semibold text-slate-200 group-hover:text-emerald-400 transition-colors">
-                {{ porfolio.owner.username if porfolio.owner.username else "usuario" }}
+                {{ porfolio.owner.name if porfolio.owner.name else "usuario" }}
               </p>
               <p class="text-xs text-slate-600 font-mono">ver perfil →</p>
             </div>
@@ -151,6 +151,25 @@
               <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6m4-3h6v6m-11 5L21 3"/>
             </svg>
           </a>
+          {% endif %}
+
+          {% if currentUser and currentUser.id == porfolio.owner._id | string %}
+          <a href="/porfolios/{{ porfolio._id }}/editar"
+            class="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0f0f18] border border-slate-800 rounded-lg hover:border-emerald-500/40 transition-all text-sm font-mono text-slate-400 hover:text-emerald-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Editar
+          </a>
+
+          <button
+            onclick="eliminarPorfolio('{{ porfolio._id }}')"
+            class="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0f0f18] border border-slate-800 rounded-lg hover:border-red-500/40 transition-all text-sm font-mono text-slate-400 hover:text-red-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+            </svg>
+            Eliminar
+          </button>
           {% endif %}
 
           <!-- Contactar -->
