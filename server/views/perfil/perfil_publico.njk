@@ -104,6 +104,17 @@
             <p class="text-[10px] font-mono text-slate-600 uppercase tracking-widest mt-0.5">lenguajes</p>
           </div>
         </div>
+        {# Invitación #}
+        <div class="bg-[#0a0a0f] border border-slate-800 rounded-lg px-4 py-3 flex flex-col gap-2 min-w-[80px]">
+          <label class="text-[10px] font-mono text-slate-600 uppercase tracking-widest text-center">// invitación</label>
+          <input id="invitationKey" type="text" readonly value=""
+                placeholder="— — — —"
+                class="bg-transparent text-center text-xs font-mono text-emerald-400 tracking-widest focus:outline-none placeholder-slate-700 cursor-default"/>
+          <button type="button" onclick="generarInvitacion()"
+                  class="px-2 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded text-emerald-400 font-mono text-[9px] uppercase tracking-widest hover:bg-emerald-500/20 transition-all">
+            Generar
+          </button>
+        </div>
 
       </div>
     </div>
@@ -154,21 +165,6 @@
       </div>
 
     </div>
-
-    {# ── INVITED BY ───────────────────────────────────────────────── #}
-    {% if user.invitedBy %}
-    <div class="bg-[#0f0f18] border border-slate-800/60 rounded-xl px-5 py-3 flex items-center gap-3">
-      <span class="text-xs font-mono text-slate-600">// invitado por</span>
-      <a href="/users/{{ user.invitedBy._id }}" class="flex items-center gap-2 group">
-        {% if user.invitedBy.avatar %}
-          <img src="{{ user.invitedBy.avatar }}" class="w-5 h-5 rounded object-cover border border-slate-700 opacity-70 group-hover:opacity-100 transition-opacity" alt=""/>
-        {% else %}
-          <span class="w-5 h-5 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-[9px] font-mono text-slate-500 group-hover:text-slate-300 transition-colors">{{ user.invitedBy.name[0] | upper }}</span>
-        {% endif %}
-        <span class="text-xs font-mono text-slate-500 group-hover:text-emerald-400 transition-colors">{{ user.invitedBy.name }}</span>
-      </a>
-    </div>
-    {% endif %}
 
     {# ── PORTFOLIOS ───────────────────────────────────────────────── #}
     <div class="flex flex-col gap-5">
@@ -227,13 +223,28 @@
       {% endif %}
     </div>
 
+    {# ── INVITED BY ───────────────────────────────────────────────── #}
+    {% if user.invitedBy %}
+    <div class="bg-[#0f0f18] border border-slate-800/60 rounded-xl px-5 py-3 flex items-center gap-3">
+      <span class="text-xs font-mono text-slate-600">// invitado por</span>
+      <a href="/perfil/{{ user.invitedBy._id }}" class="flex items-center gap-2 group">
+        {% if user.invitedBy.avatar %}
+          <img src="{{ user.invitedBy.avatar }}" class="w-5 h-5 rounded object-cover border border-slate-700 opacity-70 group-hover:opacity-100 transition-opacity" alt=""/>
+        {% else %}
+          <span class="w-5 h-5 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-[9px] font-mono text-slate-500 group-hover:text-slate-300 transition-colors">{{ user.invitedBy.name[0] | upper }}</span>
+        {% endif %}
+        <span class="text-xs font-mono text-slate-500 group-hover:text-emerald-400 transition-colors">{{ user.invitedBy.name }}</span>
+      </a>
+    </div>
+    {% endif %}
+
     {# ── GUARDAR + MEMBER SINCE ───────────────────────────────────── #}
     <div class="flex items-center justify-between pb-2">
       <div class="flex items-center gap-2 text-[10px] font-mono text-slate-700">
         <span class="w-1.5 h-1.5 rounded-full bg-slate-800 inline-block"></span>
         miembro desde {{ memberSince }}
       </div>
-      <a href="/perfil"
+      <a href="/perfil/{{ user._id }}/editar"
         class="px-5 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 font-mono text-xs uppercase tracking-widest hover:bg-emerald-500/20 transition-all">
         Editar perfil
       </a>
@@ -241,5 +252,15 @@
 
   </div>
 </div>
+
+<script>
+  async function generarInvitacion() {
+    const res = await fetch('/api/invitaciones/siguiente')
+    const data = await res.json()
+    if (data.key) {
+      document.getElementById('invitationKey').value = data.key
+    }
+  }
+</script>
 
 {% endblock %}
