@@ -111,6 +111,17 @@
             <p class="text-[10px] font-mono text-slate-600 uppercase tracking-widest mt-0.5">lenguajes</p>
           </div>
         </div>
+        {# Invitación #}
+        <div class="bg-[#0a0a0f] border border-slate-800 rounded-lg px-4 py-3 flex flex-col gap-2 min-w-[80px]">
+          <label class="text-[10px] font-mono text-slate-600 uppercase tracking-widest text-center">// invitación</label>
+          <input id="invitationKey" type="text" readonly value=""
+                placeholder="— — — —"
+                class="bg-transparent text-center text-xs font-mono text-emerald-400 tracking-widest focus:outline-none placeholder-slate-700 cursor-default"/>
+          <button type="button" onclick="generarInvitacion()"
+                  class="px-2 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded text-emerald-400 font-mono text-[9px] uppercase tracking-widest hover:bg-emerald-500/20 transition-all">
+            Generar
+          </button>
+        </div>
 
       </div>
     </div>
@@ -235,5 +246,15 @@
   </div>
   </form>
 </div>
+
+<script>
+  async function generarInvitacion() {
+    const res = await fetch('/api/invitaciones/siguiente')
+    const data = await res.json()
+    if (data.key) {
+      document.getElementById('invitationKey').value = data.key
+    }
+  }
+</script>
 
 {% endblock %}

@@ -10,7 +10,7 @@ const router = Router();
 // Registro
 router.post('/register', async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password, role, invitationKey} = req.body;
 
         if (!name || !email || !password) {
             return res.status(400).json({ error: "Nombre, email y password son obligatorios" });
@@ -41,6 +41,16 @@ router.post('/register', async (req, res) => {
             isUsed: false
         }));
         await Invitation.insertMany(invitations);
+
+        // Devolvemso un error si la invitación no es válida
+        const invitation = await Invitation.findOne({ key: invitationKey, isUsed: false});
+        if(!invitation)
+            return res.status(400).json({ error: 'Codigo de invitación inválido o ya usado' });
+        
+        // Marcamos la invitación como usada
+        invitation.isUsed = true;
+        invitation.usedBy = savedUser._id;
+        await invitation.save();
 
         const token = generateToken(savedUser);  
 
