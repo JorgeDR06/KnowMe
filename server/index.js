@@ -165,23 +165,23 @@ app.get('/notificaciones', requireLogin, async (req, res) => {
     res.render('notificaciones/notificaciones', { active: 'notificaciones', notifications: formatted })
 })
 
-// Perfil de usuario
-app.get('/perfil/:id', async (req, res) => {
-    try {
-        const user = await User.findById(req.params.id)
-        
-        if (user) {
-            res.render('perfil/perfil_publico', { active: 'perfil', user })
-        } else {
-            return res.redirect('/login')
-        }
-    } catch (error) {
-        res.status(500).render('error', { error: 'Error al cargar el perfil' + error.message})
-    }
-});
+// Perfil propio → redirige al público
+app.get('/perfil', requireLogin, (req, res) => {
+    res.redirect(`/perfil/${req.user.id}`)
+})
 
-app.get('/perfil', requireLogin, async (req, res) => {
-    const user = await User.findById(req.user.id)
+// Perfil público
+app.get('/perfil/:id', async (req, res) => {
+    const user = await User.findById(req.params.id).populate('invitedBy', 'name avatar')
+    if (!user) return res.redirect('/')
+    const isOwner = req.user && req.user.id === user._id.toString()
+    res.render('perfil/perfil_publico', { active: 'perfil', user, isOwner })
+})
+
+// Perfil editable — solo el propietario
+app.get('/perfil/:id/editar', requireLogin, async (req, res) => {
+    if (req.user.id !== req.params.id) return res.redirect(`/perfil/${req.params.id}`)
+    const user = await User.findById(req.params.id)
     res.render('perfil/perfil_usuario', { active: 'perfil', user })
 })
 

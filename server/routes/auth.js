@@ -21,6 +21,11 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ error: "El email ya está registrado" });
         }
 
+        // Devolvemso un error si la invitación no es válida
+        const invitation = await Invitation.findOne({ key: invitationKey, isUsed: false});
+        if(!invitation)
+            return res.status(400).json({ error: 'Codigo de invitación inválido o ya usado' });
+
         // Hash de la contraseña
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -30,7 +35,8 @@ router.post('/register', async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            role: role || 'user'
+            role: role || 'user',
+            invitedBy: invitation.generatedBy
         });
         const savedUser = await newUser.save();
 
@@ -41,11 +47,6 @@ router.post('/register', async (req, res) => {
             isUsed: false
         }));
         await Invitation.insertMany(invitations);
-
-        // Devolvemso un error si la invitación no es válida
-        const invitation = await Invitation.findOne({ key: invitationKey, isUsed: false});
-        if(!invitation)
-            return res.status(400).json({ error: 'Codigo de invitación inválido o ya usado' });
         
         // Marcamos la invitación como usada
         invitation.isUsed = true;
