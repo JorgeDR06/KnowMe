@@ -7,6 +7,7 @@ import methodOverride from 'method-override'
 import cookieParser from 'cookie-parser'
 
 import connectMongo from './config/mongoose.js'
+import Invitaciones from './routes/invitation.js'
 import Usuarios from './routes/user.js'
 import User from './models/User.js'
 import Notificaciones from './routes/notification.js'
@@ -126,6 +127,7 @@ app.use('/api/technologies', Technologies)
 app.use('/api/languages', Languages)
 app.use('/api/auth', Auth)
 app.use('/api/notificaciones', Notificaciones)
+app.use('/api/invitaciones', Invitaciones) 
 
 // --- VISTAS ---
 
@@ -162,6 +164,7 @@ app.get('/notificaciones', requireLogin, async (req, res) => {
     })
     res.render('notificaciones/notificaciones', { active: 'notificaciones', notifications: formatted })
 })
+
 // Perfil de usuario
 app.get('/perfil/:id', async (req, res) => {
     try {
