@@ -176,13 +176,13 @@
       {% if portfolios and portfolios | length > 0 %}
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
           {% for portfolio in portfolios %}
-          <a href="/portfolios/{{ portfolio._id }}"
+          <a href="/porfolios/{{ portfolio._id }}"
              class="group bg-[#0f0f18] border border-slate-800 rounded-xl overflow-hidden hover:border-slate-600 hover:shadow-[0_0_24px_-4px_rgba(16,185,129,0.08)] transition-all duration-300 flex flex-col">
 
             {# Cover image or placeholder #}
             <div class="aspect-video bg-[#0a0a0f] relative overflow-hidden">
-              {% if portfolio.coverImage %}
-                <img src="{{ portfolio.coverImage }}" alt="{{ portfolio.title }}"
+              {% if portfolio.media and portfolio.media | length > 0 %}
+                <img src="{{ portfolio.media[0].url }}" alt="{{ portfolio.title }}"
                      class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-500"/>
               {% else %}
                 <div class="w-full h-full flex items-center justify-center">

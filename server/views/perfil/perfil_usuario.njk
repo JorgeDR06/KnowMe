@@ -9,6 +9,13 @@
   <input type="hidden" name="_method" value="PUT">
   <div class="max-w-[1100px] mx-auto px-6 py-10 flex flex-col gap-10">
 
+    {% if error %}
+    <div class="flex items-start gap-2.5 px-4 py-3 bg-red-500/5 border border-red-500/20 rounded-lg">
+      <span class="text-red-400 font-mono text-xs mt-0.5">✕</span>
+      <p class="text-xs font-mono text-red-400">{{ error }}</p>
+    </div>
+    {% endif %}
+
     {# HEADER CARD #}
     <div class="bg-[#0f0f18] border border-slate-800 rounded-2xl overflow-hidden">
       <div class="h-px bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent"></div>
@@ -17,25 +24,26 @@
 
         {# Avatar #}
         <div class="flex flex-col gap-3 shrink-0 items-center">
-          {% if user.avatar %}
-            <img src="{{ user.avatar }}" alt="Avatar de {{ user.name }}"
+          <div class="relative group cursor-pointer" onclick="document.getElementById('avatar-file').click()">
+            <img id="avatar-preview"
+                 src="{{ user.avatar or 'https://ui-avatars.com/api/?name=' + user.name + '&background=10b981&color=0a0a0f&size=96' }}"
+                 alt="Avatar de {{ user.name }}"
                  class="w-24 h-24 rounded-xl object-cover border border-slate-700 ring-2 ring-emerald-500/20"/>
-          {% else %}
-            <div class="w-24 h-24 rounded-xl bg-[#151520] border border-slate-700 ring-2 ring-emerald-500/20 flex items-center justify-center">
-              <span class="font-mono text-3xl font-bold text-emerald-400/60 select-none">
-                {{ user.name[0] | upper }}
-              </span>
+            <div class="absolute inset-0 rounded-xl bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/>
+              </svg>
             </div>
-          {% endif %}
+            <div id="avatar-spinner" class="hidden absolute inset-0 rounded-xl bg-black/60 flex items-center justify-center">
+              <div class="w-5 h-5 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          </div>
+          <input id="avatar-file" type="file" accept="image/*" class="hidden"/>
+          <input type="hidden" id="avatar-hidden" name="avatar" value="{{ user.avatar }}"/>
           {% if user.role === 'admin' %}
             <span class="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/30 rounded text-amber-400 font-mono text-[9px] uppercase tracking-widest">admin</span>
           {% endif %}
-          {# Avatar URL input #}
-          <div class="flex flex-col gap-1.5 w-24">
-            <label class="text-[9px] font-mono text-slate-600 uppercase tracking-widest text-center">// avatar url</label>
-            <input type="text" name="avatar" value="{{ user.avatar }}" placeholder="https://..."
-                   class="bg-[#0a0a0f] border border-slate-800 rounded-lg px-2 py-1.5 text-[10px] font-mono text-slate-400 focus:outline-none focus:border-emerald-500/50 transition-all placeholder-slate-800 w-full text-center"/>
-          </div>
+          <p class="text-[9px] font-mono text-slate-700 text-center">click para cambiar</p>
         </div>
 
         {# Identity #}
@@ -118,40 +126,48 @@
     {# ── SKILLS + LANGUAGES ───────────────────────────────────────── #}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-      {# Skills #}
+      {# Skills / Tecnologías — multi-select #}
       <div class="bg-[#0f0f18] border border-slate-800 rounded-2xl p-6 flex flex-col gap-4">
         <label class="text-xs font-mono text-emerald-400 uppercase tracking-widest">// tecnologías</label>
-        {% if user.skills and user.skills | length > 0 %}
-          <div class="flex flex-wrap gap-2">
-            {% for skill in user.skills %}
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#0a0a0f] border border-slate-800 rounded-md text-xs font-mono text-slate-300 hover:border-emerald-500/30 hover:text-emerald-400 transition-all cursor-default">
-                {% if skill.icon %}<img src="{{ skill.icon }}" alt="" class="w-3.5 h-3.5 object-contain opacity-70"/>
-                {% else %}<span class="w-1.5 h-1.5 rounded-full bg-emerald-500/50 inline-block"></span>{% endif %}
-                {{ skill.name }}
-              </span>
-            {% endfor %}
-          </div>
-        {% else %}
-          <p class="text-sm font-mono text-slate-700 italic">// sin tecnologías añadidas</p>
-        {% endif %}
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input id="skill-search" type="text" placeholder="Buscar tecnología..." autocomplete="off"
+                 class="w-full bg-[#0a0a0f] border border-slate-800 rounded-lg pl-9 pr-4 py-2.5 text-sm font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"/>
+          <div id="skill-suggestions" class="hidden absolute z-50 w-full mt-1 bg-[#0f0f18] border border-slate-700 rounded-lg overflow-hidden shadow-xl max-h-48 overflow-y-auto"></div>
+        </div>
+        <div id="skill-selected" class="flex flex-wrap gap-2">
+          {% for skill in user.skills %}
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-mono border border-emerald-500/40 text-emerald-400 bg-emerald-500/10" data-id="{{ skill._id }}">
+              {{ skill.name }}
+              <button type="button" class="ml-0.5 hover:text-white remove-skill-btn">×</button>
+            </span>
+            <input type="hidden" name="skills" value="{{ skill._id }}"/>
+          {% endfor %}
+        </div>
       </div>
 
-      {# Languages #}
+      {# Languages — multi-select #}
       <div class="bg-[#0f0f18] border border-slate-800 rounded-2xl p-6 flex flex-col gap-4">
-        <label class="text-xs font-mono text-emerald-400 uppercase tracking-widest">// lenguajes</label>
-        {% if user.languages and user.languages | length > 0 %}
-          <div class="flex flex-wrap gap-2">
-            {% for lang in user.languages %}
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#0a0a0f] border border-slate-800 rounded-md text-xs font-mono text-slate-300 hover:border-violet-500/30 hover:text-violet-400 transition-all cursor-default">
-                {% if lang.icon %}<img src="{{ lang.icon }}" alt="" class="w-3.5 h-3.5 object-contain opacity-70"/>
-                {% else %}<span class="w-1.5 h-1.5 rounded-full bg-violet-500/50 inline-block"></span>{% endif %}
-                {{ lang.name }}
-              </span>
-            {% endfor %}
-          </div>
-        {% else %}
-          <p class="text-sm font-mono text-slate-700 italic">// sin lenguajes añadidos</p>
-        {% endif %}
+        <label class="text-xs font-mono text-violet-400 uppercase tracking-widest">// lenguajes</label>
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input id="lang-search" type="text" placeholder="Buscar lenguaje..." autocomplete="off"
+                 class="w-full bg-[#0a0a0f] border border-slate-800 rounded-lg pl-9 pr-4 py-2.5 text-sm font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/20 transition-all"/>
+          <div id="lang-suggestions" class="hidden absolute z-50 w-full mt-1 bg-[#0f0f18] border border-slate-700 rounded-lg overflow-hidden shadow-xl max-h-48 overflow-y-auto"></div>
+        </div>
+        <div id="lang-selected" class="flex flex-wrap gap-2">
+          {% for lang in user.languages %}
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-mono border border-violet-500/40 text-violet-400 bg-violet-500/10" data-id="{{ lang._id }}">
+              {{ lang.name }}
+              <button type="button" class="ml-0.5 hover:text-white remove-lang-btn">×</button>
+            </span>
+            <input type="hidden" name="languages" value="{{ lang._id }}"/>
+          {% endfor %}
+        </div>
       </div>
 
     </div>
@@ -244,6 +260,124 @@
       document.getElementById('invitationKey').value = data.key
     }
   }
+
+  // ── Upload de avatar ─────────────────────────────────────────────
+  document.getElementById('avatar-file').addEventListener('change', async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    const spinner = document.getElementById('avatar-spinner')
+    spinner.classList.remove('hidden')
+    spinner.classList.add('flex')
+    try {
+      const formData = new FormData()
+      formData.append('avatar', file)
+      const res  = await fetch('/api/usuarios/{{ user._id }}/avatar', { method: 'POST', body: formData })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      document.getElementById('avatar-preview').src = data.url
+      document.getElementById('avatar-hidden').value = data.url
+    } catch (err) {
+      console.error(err)
+      alert('Error al subir la imagen: ' + err.message)
+    } finally {
+      spinner.classList.add('hidden')
+      spinner.classList.remove('flex')
+      e.target.value = ''
+    }
+  })
+
+  // ── Multi-select para skills y lenguajes ─────────────────────────
+  let debounceTimer = null
+  function debounce(fn, ms = 300) { clearTimeout(debounceTimer); debounceTimer = setTimeout(fn, ms) }
+
+  async function fetchSuggestions(endpoint, query, dropdownEl, onSelect) {
+    if (!query.trim()) { dropdownEl.classList.add('hidden'); return }
+    try {
+      const res  = await fetch(`/api/${endpoint}/search?q=${encodeURIComponent(query)}`)
+      const data = await res.json()
+      if (!data.result?.length) {
+        dropdownEl.innerHTML = `<p class="px-4 py-3 text-xs font-mono text-slate-600">Sin resultados</p>`
+        dropdownEl.classList.remove('hidden')
+        return
+      }
+      dropdownEl.innerHTML = data.result.map(item => `
+        <button type="button" class="w-full text-left px-4 py-2.5 text-sm font-mono text-slate-300 hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors flex items-center justify-between"
+          data-id="${item._id}" data-name="${item.name}">
+          <span>${item.name}</span>
+          <span class="text-[10px] text-slate-600">${item.category}</span>
+        </button>`).join('')
+      dropdownEl.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          onSelect({ _id: btn.dataset.id, name: btn.dataset.name })
+          dropdownEl.classList.add('hidden')
+        })
+      })
+      dropdownEl.classList.remove('hidden')
+    } catch (err) { console.error(err) }
+  }
+
+  function addTag(container, item, colorClass, inputName) {
+    if ([...container.querySelectorAll('[data-id]')].find(el => el.dataset.id === item._id)) return
+    const tag = document.createElement('span')
+    tag.className = `inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-mono border ${colorClass}`
+    tag.dataset.id = item._id
+    tag.innerHTML = `${item.name}<button type="button" class="ml-0.5 hover:text-white remove-tag-dyn">×</button>`
+    const hidden = document.createElement('input')
+    hidden.type  = 'hidden'
+    hidden.name  = inputName
+    hidden.value = item._id
+    hidden.dataset.tagId = item._id
+    tag.querySelector('.remove-tag-dyn').addEventListener('click', () => {
+      tag.remove()
+      document.querySelector(`input[name="${inputName}"][data-tag-id="${item._id}"]`)?.remove()
+    })
+    container.appendChild(tag)
+    container.appendChild(hidden)
+  }
+
+  // Bind existing remove buttons (for pre-populated items)
+  document.querySelectorAll('.remove-skill-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tag = btn.closest('span')
+      const id  = tag.dataset.id
+      tag.remove()
+      document.querySelector(`input[name="skills"][value="${id}"]`)?.remove()
+    })
+  })
+  document.querySelectorAll('.remove-lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tag = btn.closest('span')
+      const id  = tag.dataset.id
+      tag.remove()
+      document.querySelector(`input[name="languages"][value="${id}"]`)?.remove()
+    })
+  })
+
+  const skillSearch = document.getElementById('skill-search')
+  const skillSugg   = document.getElementById('skill-suggestions')
+  const skillSel    = document.getElementById('skill-selected')
+  const langSearch  = document.getElementById('lang-search')
+  const langSugg    = document.getElementById('lang-suggestions')
+  const langSel     = document.getElementById('lang-selected')
+
+  skillSearch.addEventListener('input', () => {
+    debounce(() => fetchSuggestions('technologies', skillSearch.value, skillSugg, (item) => {
+      addTag(skillSel, item, 'border-emerald-500/40 text-emerald-400 bg-emerald-500/10', 'skills')
+      skillSearch.value = ''
+    }))
+  })
+
+  langSearch.addEventListener('input', () => {
+    debounce(() => fetchSuggestions('languages', langSearch.value, langSugg, (item) => {
+      addTag(langSel, item, 'border-violet-500/40 text-violet-400 bg-violet-500/10', 'languages')
+      langSearch.value = ''
+    }))
+  })
+
+  document.addEventListener('click', (e) => {
+    if (!skillSearch.contains(e.target) && !skillSugg.contains(e.target)) skillSugg.classList.add('hidden')
+    if (!langSearch.contains(e.target)  && !langSugg.contains(e.target))  langSugg.classList.add('hidden')
+  })
 </script>
 
 {% endblock %}

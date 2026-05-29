@@ -121,7 +121,7 @@ const languages = [
 
 async function seed() {
     try {
-        await mongoose.connect(process.env.MONGODB_URI)
+        await mongoose.connect("mongodb://localhost:27017/knowme")
         console.log('MongoDB conectado')
 
         await Technology.deleteMany({})
