@@ -12,19 +12,21 @@ router.post('/register', async (req, res) => {
     try {
         const { name, email, password, role, invitationKey} = req.body;
 
+        const formData = { name, email, invitationKey };
+
         if (!name || !email || !password) {
-            return res.status(400).json({ error: "Nombre, email y password son obligatorios" });
+            return res.render('auth/registro_usuario', { error: 'Nombre, email y contraseña son obligatorios', formData });
         }
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ error: "El email ya está registrado" });
+            return res.render('auth/registro_usuario', { error: 'El email ya está registrado', formData });
         }
 
         // Devolvemso un error si la invitación no es válida
         const invitation = await Invitation.findOne({ key: invitationKey, isUsed: false});
         if(!invitation)
-            return res.status(400).json({ error: 'Codigo de invitación inválido o ya usado' });
+            return res.render('auth/registro_usuario', { error: 'Código de invitación inválido o ya usado', formData });
 
         // Hash de la contraseña
         const saltRounds = 10;
@@ -66,7 +68,7 @@ router.post('/register', async (req, res) => {
 
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: "Error en el servidor" });
+        res.render('auth/registro_usuario', { error: 'Error en el servidor, inténtalo de nuevo', formData: { name, email, invitationKey } });
     }
 });
 
@@ -77,12 +79,12 @@ router.post('/login', async (req, res) => {
 
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(401).json({ error: "Credenciales incorrectas" });
+            return res.render('auth/login', { error: 'Credenciales incorrectas', formData: { email } });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(401).json({ error: "Credenciales incorrectas" });
+            return res.render('auth/login', { error: 'Credenciales incorrectas', formData: { email } });
         }
 
         const token = generateToken(user);
@@ -96,7 +98,7 @@ router.post('/login', async (req, res) => {
 
         res.redirect('/porfolios')
     } catch (err) {
-        res.status(500).json({ error: "Error en el servidor" });
+        res.render('auth/login', { error: 'Error en el servidor, inténtalo de nuevo' });
     }
 });
 

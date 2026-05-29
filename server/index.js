@@ -6,8 +6,10 @@ import dotenv from 'dotenv'
 import methodOverride from 'method-override'
 import cookieParser from 'cookie-parser'
 
+import crypto from 'node:crypto'
 import connectMongo from './config/mongoose.js'
 import Invitaciones from './routes/invitation.js'
+import Invitation from './models/Invitation.js'
 import Usuarios from './routes/user.js'
 import User from './models/User.js'
 import Notificaciones from './routes/notification.js'
@@ -172,17 +174,34 @@ app.get('/perfil', requireLogin, (req, res) => {
 
 // Perfil público
 app.get('/perfil/:id', async (req, res) => {
-    const user = await User.findById(req.params.id).populate('invitedBy', 'name avatar')
+    const [user, portfolios] = await Promise.all([
+        User.findById(req.params.id)
+            .populate('invitedBy', 'name avatar')
+            .populate('skills')
+            .populate('languages'),
+        Porfolio.find({ owner: req.params.id })
+            .populate('technologies')
+            .populate('languages')
+    ])
     if (!user) return res.redirect('/')
     const isOwner = req.user && req.user.id === user._id.toString()
-    res.render('perfil/perfil_publico', { active: 'perfil', user, isOwner })
+    const memberSince = new Date(user.createdAt).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })
+    res.render('perfil/perfil_publico', { active: 'perfil', user, isOwner, portfolios, memberSince })
 })
 
 // Perfil editable — solo el propietario
 app.get('/perfil/:id/editar', requireLogin, async (req, res) => {
     if (req.user.id !== req.params.id) return res.redirect(`/perfil/${req.params.id}`)
-    const user = await User.findById(req.params.id)
-    res.render('perfil/perfil_usuario', { active: 'perfil', user })
+    const [user, portfolios] = await Promise.all([
+        User.findById(req.params.id)
+            .populate('skills')
+            .populate('languages'),
+        Porfolio.find({ owner: req.params.id })
+            .populate('technologies')
+            .populate('languages')
+    ])
+    const memberSince = new Date(user.createdAt).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })
+    res.render('perfil/perfil_usuario', { active: 'perfil', user, portfolios, memberSince, error: req.query.error || null })
 })
 
 // Gestion de usuarios
@@ -192,6 +211,40 @@ app.get('/usuarios', requireAdmin, async (req, res) => {
         res.render('usuario/usuarios', { active: 'admin', users })
     } catch (error) {
         res.status(500).render('error', { error: 'Error al cargar usuarios' })
+    }
+})
+
+app.get('/usuarios/nuevo', requireAdmin, (req, res) => {
+    res.render('usuario/usuario_nuevo', { active: 'admin' })
+})
+
+app.post('/api/usuarios', requireAdmin, async (req, res) => {
+    const { name, email, password, role } = req.body
+    const formData = { name, email, role }
+    try {
+        if (!name || !email || !password)
+            return res.render('usuario/usuario_nuevo', { active: 'admin', error: 'Nombre, email y contraseña son obligatorios', formData })
+
+        const existing = await User.findOne({ email })
+        if (existing)
+            return res.render('usuario/usuario_nuevo', { active: 'admin', error: 'El email ya está registrado', formData })
+
+        const bcrypt = await import('bcrypt')
+        const hashedPassword = await bcrypt.default.hash(password, 10)
+        const newUser = new User({ name, email, password: hashedPassword, role: role || 'user' })
+        const saved = await newUser.save()
+
+        const invitations = Array.from({ length: 10 }).map(() => ({
+            key: crypto.randomBytes(4).toString('hex').toUpperCase(),
+            generatedBy: saved._id,
+            isUsed: false
+        }))
+        await Invitation.insertMany(invitations)
+
+        res.redirect('/usuarios')
+    } catch (err) {
+        console.error(err)
+        res.render('usuario/usuario_nuevo', { active: 'admin', error: 'Error al crear el usuario', formData })
     }
 })
 
