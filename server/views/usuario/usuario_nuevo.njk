@@ -68,21 +68,12 @@
 
         {# Rol #}
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-mono text-emerald-400 uppercase tracking-widest">// rol</label>
-          <div class="flex gap-3">
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input type="radio" name="role" value="user"
-                     {{ 'checked' if not formData or formData.role !== 'admin' else '' }}
-                     class="accent-emerald-500"/>
-              <span class="text-sm font-mono text-slate-300">user</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input type="radio" name="role" value="admin"
-                     {{ 'checked' if formData and formData.role === 'admin' else '' }}
-                     class="accent-amber-500"/>
-              <span class="text-sm font-mono text-amber-400">admin</span>
-            </label>
-          </div>
+          <label class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest">// rol</label>
+          <select name="role"
+                  class="bg-[#0a0a0f] border border-slate-700 rounded-lg px-4 py-2.5 text-sm font-mono text-slate-200 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all">
+            <option value="user"  {% if not formData or formData.role !== 'admin' %}selected{% endif %}>user</option>
+            <option value="admin" {% if formData and formData.role === 'admin' %}selected{% endif %}>admin</option>
+          </select>
         </div>
 
         {# Botones #}
