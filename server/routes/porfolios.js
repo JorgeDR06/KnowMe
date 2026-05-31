@@ -1,7 +1,8 @@
 import express from 'express'
 import Porfolio from '../models/porfolio.js'
-import { protectRoute, requireLogin } from '../auth/auth.js' 
+import { protectRoute, requireLogin } from '../auth/auth.js'
 import { upload } from '../config/cloudinary.js'
+import User from '../models/User.js'
 
 const router = express.Router();
 
@@ -27,16 +28,27 @@ router.get('/', async (req, res) => {
 // GET: Buscar porfolios por título, tecnología o lenguaje
 router.get('/find', async (req, res) => {
     try {
-        const { title, technology, language, featured } = req.query;
+        const { title, technology, language, featured, user } = req.query;
 
         if (!title && !technology && !language && !featured) {
             return res.status(400).send({ error: "Se requiere al menos un parámetro de búsqueda" });
         }
 
+        let ownerIds = []
+        if (user) {
+            const users = await User.find({ name: { $regex: user, $options: 'i' } }).select('_id')
+            ownerIds = users.map(u => u._id)
+        }
+
         const query = {};
-        if (title)      query.title        = { $regex: title, $options: 'i' };
-        if (technology) query.technologies = { $in: technology.split(',') };  // acepta uno o varios IDs separados por coma
-        if (language)   query.languages    = { $in: language.split(',') };
+        if (title || ownerIds.length > 0) {
+            const orConditions = []
+            if (title) orConditions.push({ title: { $regex: title, $options: 'i' } })
+            if (ownerIds.length > 0) orConditions.push({ owner: { $in: ownerIds } })
+            query.$or = orConditions
+        }
+        if (technology) query.technologies = { $in: technology.split(',') };
+        if (language) query.languages = { $in: language.split(',') };
         if (featured === 'true') query.featured = true;
 
         const result = await Porfolio.find(query)
@@ -155,7 +167,7 @@ router.post('/', requireLogin, async (req, res) => {
 });
 
 // PUT: Actualizar porfoliolio
-router.put('/:id',  requireLogin, async (req, res) => {
+router.put('/:id', requireLogin, async (req, res) => {
     try {
         const porfolio = await Porfolio.findById(req.params.id);
         if (!porfolio) {
