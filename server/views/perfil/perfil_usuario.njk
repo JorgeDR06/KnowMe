@@ -176,7 +176,7 @@
     {% if user.invitedBy %}
     <div class="bg-[#0f0f18] border border-slate-800/60 rounded-xl px-5 py-3 flex items-center gap-3">
       <span class="text-xs font-mono text-slate-600">// invitado por</span>
-      <a href="/users/{{ user.invitedBy._id }}" class="flex items-center gap-2 group">
+      <a href="/perfil/{{ user.invitedBy._id }}" class="flex items-center gap-2 group">
         {% if user.invitedBy.avatar %}
           <img src="{{ user.invitedBy.avatar }}" class="w-5 h-5 rounded object-cover border border-slate-700 opacity-70 group-hover:opacity-100 transition-opacity" alt=""/>
         {% else %}
