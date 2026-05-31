@@ -36,3 +36,12 @@ export function viteCssFiles() {
 
   return manifest[ENTRY].css?.map(file => `/build/${file}`) || []
 }
+
+export function viteAssetEntry(entry) {
+  if (isDev()) {
+    return `http://localhost:5173/${entry}`
+  }
+  const manifest = loadManifest()
+  if (!manifest || !manifest[entry]) return null
+  return `/build/${manifest[entry].file}`
+}

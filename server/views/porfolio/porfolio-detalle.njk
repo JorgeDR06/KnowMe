@@ -327,6 +327,8 @@
 
   {% if isDev() %}
     <script type="module" src="http://localhost:5173/js/porfolio-detalle.js"></script>
+  {% else %}
+    <script type="module" src="{{ viteAssetEntry('js/porfolio-detalle.js') }}"></script>
   {% endif %}
 
 {% endblock %}

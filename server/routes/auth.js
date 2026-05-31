@@ -23,14 +23,15 @@ router.post('/register', async (req, res) => {
             return res.render('auth/registro_usuario', { error: 'El email ya está registrado', formData });
         }
 
+        // Hash de la contraseña
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        
+        
         // Devolvemso un error si la invitación no es válida
         const invitation = await Invitation.findOne({ key: invitationKey, isUsed: false});
         if(!invitation)
             return res.render('auth/registro_usuario', { error: 'Código de invitación inválido o ya usado', formData });
-
-        // Hash de la contraseña
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
 
         // Crear usuario
         const newUser = new User({

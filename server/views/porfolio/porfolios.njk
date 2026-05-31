@@ -96,6 +96,8 @@
 
 {% if isDev() %}
   <script type="module" src="http://localhost:5173/js/porfolios.js"></script>
+{% else %}
+  <script type="module" src="{{ viteAssetEntry('js/porfolios.js') }}"></script>
 {% endif %}
 
 {% endblock %}
