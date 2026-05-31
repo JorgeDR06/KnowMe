@@ -15,6 +15,7 @@ const resultsCount = document.getElementById('results-count')
 const skeletonGrid = document.getElementById('skeleton-grid')
 const porfoliosGrid = document.getElementById('porfolios-grid')
 const noResults = document.getElementById('no-results')
+const sortSelect = document.getElementById('sort-select')
 
 function debounce(fn, ms = 350) {
     clearTimeout(debounceTimer)
@@ -29,8 +30,8 @@ function buildQueryString() {
         params.set('user', title)
     }
     if (selectedTechs.length) params.set('technology', selectedTechs.map(t => t._id).join(','))
-    if (selectedLangs.length) params.set('language', selectedLangs.map(l => l._id).join(','))
-    if (featuredOnly) params.set('featured', 'true')
+    if (selectedLangs.length) params.set('language',   selectedLangs.map(l => l._id).join(','))
+    if (featuredOnly)         params.set('featured', 'true')
     return params.toString()
 }
 
@@ -75,7 +76,12 @@ function renderCard(p) {
 
 async function fetchPorfolios() {
     const qs = buildQueryString()
-    const url = qs ? `/api/porfolios/find?${qs}` : '/api/porfolios'
+    const hasFilters = globalSearch.value.trim() || selectedTechs.length || selectedLangs.length || featuredOnly
+    const sort = sortSelect.value
+        const url = hasFilters 
+        ? `/api/porfolios/find?${qs}&sort=${sort}` 
+        : `/api/porfolios?sort=${sort}`
+
     try {
         const res = await fetch(url)
         const data = await res.json()
@@ -187,6 +193,8 @@ featuredToggle.addEventListener('click', () => {
     debounce(fetchPorfolios)
 })
 
+sortSelect.addEventListener('change', () => fetchPorfolios())
+
 clearBtn.addEventListener('click', () => {
     globalSearch.value = ''; techSearch.value = ''; langSearch.value = ''
     selectedTechs = []; selectedLangs = []; featuredOnly = false
@@ -195,6 +203,7 @@ clearBtn.addEventListener('click', () => {
     featuredTrack.classList.replace('bg-emerald-500', 'bg-slate-700')
     featuredKnob.classList.remove('translate-x-4')
     featuredKnob.classList.replace('bg-white', 'bg-slate-400')
+    sortSelect.value = 'newest'
     fetchPorfolios()
 })
 
