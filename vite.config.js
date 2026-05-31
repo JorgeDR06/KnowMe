@@ -12,7 +12,9 @@ export default defineConfig(({ command }) => ({
     manifest: true,
     rollupOptions: {
       input: {
-        app: path.resolve(process.cwd(), 'client/js/main.js')
+        app: path.resolve(process.cwd(), 'client/js/main.js'),
+        porfolios: 'client/js/porfolios.js',
+        porfolioDetalle: 'client/js/porfolio-detalle.js'
       }
     }
   },

@@ -19,7 +19,7 @@ let router = Router();
 router.get('/', async (req, res) => {
     try {
         const usuarios = await User.find();
-        res.render('usuarios_listado', { user: usuarios });
+        res.render('usuarios', { user: usuarios });
     } catch (error) {
         res.status(500).render('error', { error: "Error al cargar la lista" });
     }

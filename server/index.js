@@ -14,7 +14,7 @@ import Usuarios from './routes/user.js'
 import User from './models/User.js'
 import Notificaciones from './routes/notification.js'
 import Notification from './models/notification.js'
-import { viteAsset, viteCssFiles, isDev } from './utils/vite-assets.js'
+import { viteAsset, viteCssFiles, isDev, viteAssetEntry } from './utils/vite-assets.js'
 import Porfolios from './routes/porfolios.js';
 import Porfolio from './models/porfolio.js'
 import Technologies from './routes/technologies.js'
@@ -27,9 +27,11 @@ import { protectRoute, requireLogin, verifyToken, requireAdmin } from './auth/au
 
 dotenv.config()
 
+
 const app = express()
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+app.set('trust proxy', 1)
 
 connectMongo()
 
@@ -122,6 +124,7 @@ app.set('views', path.join(__dirname, 'views'))
 app.locals.isDev = isDev
 app.locals.viteAsset = viteAsset
 app.locals.viteCssFiles = viteCssFiles
+app.locals.viteAssetEntry = viteAssetEntry
 
 app.use('/api/porfolios', Porfolios)
 app.use('/api/usuarios', Usuarios)
@@ -297,7 +300,7 @@ app.get('/porfolios/:id/editar', requireLogin, async (req, res) => {
     }
 })
 
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 3003
 app.listen(port, () => {
   console.log(`Servidor: http://localhost:${port}`)
 })

@@ -1,0 +1,23 @@
+{
+  "js/main.js": {
+    "file": "assets/app-HBWGdSvx.js",
+    "name": "app",
+    "src": "js/main.js",
+    "isEntry": true,
+    "css": [
+      "assets/app-C_hHf6nQ.css"
+    ]
+  },
+  "js/porfolio-detalle.js": {
+    "file": "assets/porfolioDetalle-B9HE7Hjh.js",
+    "name": "porfolioDetalle",
+    "src": "js/porfolio-detalle.js",
+    "isEntry": true
+  },
+  "js/porfolios.js": {
+    "file": "assets/porfolios-BTqHw2F0.js",
+    "name": "porfolios",
+    "src": "js/porfolios.js",
+    "isEntry": true
+  }
+}
