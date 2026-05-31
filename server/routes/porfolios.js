@@ -11,8 +11,17 @@ const VALID_MEDIA_TYPES = ['image', 'video'];
 
 // GET: Obtener todos los porfolios
 router.get('/', async (req, res) => {
+    const { sort = 'newest' } = req.query
+    let sortQuery = {}
+    if (sort === 'newest')   sortQuery = { createdAt: -1 }
+    if (sort === 'oldest')   sortQuery = { createdAt:  1 }
+    if (sort === 'title-az') sortQuery = { title: 1 }
+    if (sort === 'title-za') sortQuery = { title: -1 }
+
     try {
-        const result = await Porfolio.find().populate('owner', 'name avatar')
+        const result = await Porfolio.find()
+            .sort(sortQuery)
+            .populate('owner', 'name avatar')
             .populate('technologies')
             .populate('languages');
         if (!result || result.length === 0) {
@@ -29,8 +38,15 @@ router.get('/', async (req, res) => {
 router.get('/find', async (req, res) => {
     try {
         const { title, technology, language, featured, user } = req.query;
+        const { sort = 'newest' } = req.query
 
-        if (!title && !technology && !language && !featured) {
+        let sortQuery = {}
+        if (sort === 'newest') sortQuery = { createdAt: -1 }
+        if (sort === 'oldest') sortQuery = { createdAt: 1 }
+        if (sort === 'title-az') sortQuery = { title: 1 }
+        if (sort === 'title-za') sortQuery = { title: -1 }
+
+        if (!title && !technology && !language && !featured && !user) {
             return res.status(400).send({ error: "Se requiere al menos un parámetro de búsqueda" });
         }
 
@@ -52,6 +68,7 @@ router.get('/find', async (req, res) => {
         if (featured === 'true') query.featured = true;
 
         const result = await Porfolio.find(query)
+            .sort(sortQuery)
             .populate('owner', 'name avatar')
             .populate('technologies')
             .populate('languages');
